@@ -100,7 +100,7 @@ export default function PricingPage() {
             <h2 className="text-gray-400 mb-4">STANDARD</h2>
             <div className="text-4xl font-bold">
               ₹{billingCycle === "monthly" ? plans.standard.monthly : plans.standard.yearly}
-              <span className="text-gray-400 text-lg font-normal">/user/year</span>
+              <span className="text-gray-400 text-lg font-normal">/year</span>
             </div>
             <div className="text-sm text-gray-500 mt-2">
               Up to 5 users
@@ -145,7 +145,7 @@ export default function PricingPage() {
             <h2 className="text-gray-400 mb-4">PLUS</h2>
             <div className="text-4xl font-bold">
               ₹{billingCycle === "monthly" ? plans.plus.monthly : plans.plus.yearly}
-              <span className="text-gray-400 text-lg font-normal">/user/year</span>
+              <span className="text-gray-400 text-lg font-normal">/year</span>
             </div>
             <div className="text-sm text-gray-500 mt-2">
               Minimum 10 users (₹{plans.plus.yearlyTotal} yearly)

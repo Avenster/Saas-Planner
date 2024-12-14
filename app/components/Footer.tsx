@@ -46,9 +46,9 @@ export default function Footer() {
             <input
               type="email"
               placeholder="janedoe@example.com"
-              className="flex-1 px-3 py-1.5 text-sm rounded-lg bg-white/10 border border-white/10 focus:outline-none focus:border-white/20"
+              className="flex-1 px-5 py-3 text-sm rounded-[2rem] bg-black border border-white/10 focus:outline-none focus:border-white/20"
             />
-            <button className="px-3 py-1.5 text-sm bg-white text-black rounded-lg hover:bg-gray-100">
+            <button className="px-3 py-1.5 text-sm bg-white text-black rounded-[2rem] hover:bg-gray-100">
               Subscribe
             </button>
           </div>
@@ -61,12 +61,9 @@ export default function Footer() {
           {/* Credits */}
           <div className="text-xs">
             Built by{" "}
-            <Link to="*" className="underline hover:text-white">mickasmt</Link>
+            <Link to="*" className="underline hover:text-white">Avenster</Link>
             . Hosted on{" "}
             <Link to="*" className="underline hover:text-white">Vercel</Link>
-            . Illustrations by{" "}
-            <Link to="*" className="underline hover:text-white">Popsy</Link>
-            .
           </div>
 
           {/* Icons */}

@@ -33,7 +33,7 @@ export default function Header() {
           <Link to="/blog" className="flex justify-center items-center text-gray-300 font-light text-sm">Blog</Link>
           <Link to="/docs" className="flex justify-center items-center text-gray-300 font-light text-sm">Documentation</Link>
         </nav>
-        <Link to="/Login" className="flex justify-center items-center w-20 h-8 bg-white text-black rounded-full">
+        <Link to="/Login" className="flex justify-center items-center w-[8rem] h-8 bg-white text-black rounded-full">
           Login
         </Link>
       </div>
