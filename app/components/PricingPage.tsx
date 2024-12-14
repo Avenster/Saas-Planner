@@ -100,9 +100,8 @@ export default function PricingPage() {
 
   const renderValue = (value: boolean | string) => {
     if (value === true) return (
-      <svg viewBox="0 0 24 24" className="w-5 h-5 mx-auto text-indigo-400">
-        <circle cx="12" cy="12" r="10" className="fill-current opacity-20"/>
-        <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+      <svg viewBox="0 0 24 24" className="w-5 h-5 mx-auto text-blue-500">
+        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
       </svg>
     );
     if (value === '-') return <span className="text-gray-600">—</span>;
@@ -317,37 +316,39 @@ export default function PricingPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto mt-24">
-      <div className="text-center mb-12">
-        <p className="text-indigo-400 text-sm mb-4">Plans</p>
-        <h2 className="text-3xl font-bold text-white mb-4">Compare Our Plans</h2>
+      <div className="max-w-7xl mx-auto px-4 mb-16">
+      <div className="text-center mb-16">
+        <p className="text-indigo-400 mb-4">Plans</p>
+        <h2 className="text-4xl font-bold text-white mb-4">Compare Our Plans</h2>
         <p className="text-gray-400">Find the perfect plan tailored for your business needs!</p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse bg-black/40">
+      <div className="rounded-lg overflow-hidden bg-black">
+        <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="p-6 text-left"></th>
-              <th className="p-6 text-center text-white font-medium text-lg">Starter</th>
-              <th className="p-6 text-center text-white font-medium text-lg">Pro</th>
-              <th className="p-6 text-center text-white font-medium text-lg">Business</th>
+              <th className="py-5 px-6 text-left"></th>
+              <th className="py-5 px-6 text-center text-white text-lg font-normal">Starter</th>
+              <th className="py-5 px-6 text-center text-white text-lg font-normal">Pro</th>
+              <th className="py-5 px-6 text-center text-white text-lg font-normal">Business</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-gray-800/50">
             {features.map((feature, index) => (
-              <tr key={index} className="border-t border-gray-800">
-                <td className="p-6 text-white flex items-center">
-                  <span className="text-[15px]">{feature.name}</span>
+              <tr key={index}>
+                <td className="py-4 px-6 text-white flex items-center gap-2">
+                  {feature.name}
                   {feature.hasTooltip && (
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 ml-2 text-gray-500">
-                      <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15v-2h2v2h-2zm0-10v6h2V7h-2z" fill="currentColor"/>
-                    </svg>
+                    <button className="text-gray-500">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4">
+                        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                      </svg>
+                    </button>
                   )}
                 </td>
-                <td className="p-6 text-center">{renderValue(feature.starter)}</td>
-                <td className="p-6 text-center">{renderValue(feature.pro)}</td>
-                <td className="p-6 text-center">{renderValue(feature.business)}</td>
+                <td className="py-4 px-6 text-center">{renderValue(feature.starter)}</td>
+                <td className="py-4 px-6 text-center">{renderValue(feature.pro)}</td>
+                <td className="py-4 px-6 text-center">{renderValue(feature.business)}</td>
               </tr>
             ))}
           </tbody>

@@ -16,7 +16,7 @@ export default function Index() {
     <div className="bg-black h-[200vh]">
       {/* <Header/> */}
       {/* <Hero/> */}
-      <PricingPage />
+      <AuthPage />
 
 
     </div>
