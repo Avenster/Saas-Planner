@@ -44,13 +44,26 @@ connectToMongo();
 // Get all users
 app.get("/api/users", verifyToken, async (req, res) => {
   try {
-    const users = await collection.find({}).toArray();
-    // Remove sensitive information
-    const sanitizedUsers = users.map(({ password, ...user }) => ({
-      ...user,
-      lastLogin: user.lastLogin || 'Never',
-      status: user.status || 'Active'
+    const orgName = req.query.orgName; // Get organization name from query
+    if (!orgName) {
+      return res.status(400).json({ status: "error", message: "Organization name required" });
+    }
+
+    const db = client.db("login-deatils");
+    const users = await db.collection("users_org")
+      .find({ "Organisation Name": orgName })
+      .toArray();
+
+    // Transform the data to match the expected format
+    const sanitizedUsers = users.map(user => ({
+      _id: user._id,
+      name: user.Name,
+      email: user["User Email"],
+      role: "user",
+      status: "Active",
+      lastLogin: "N/A"
     }));
+
     res.json(sanitizedUsers);
   } catch (e) {
     res.status(500).json({ status: "error", message: "Failed to fetch users" });
@@ -59,27 +72,43 @@ app.get("/api/users", verifyToken, async (req, res) => {
 
 // Add new user
 app.post("/api/users", verifyToken, async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
+  const orgName = req.query.orgName; // Get from query parameter
+  const planName = req.query.planName; // Get from query parameter
 
   try {
-    // Check if user exists
-    const existingUser = await collection.findOne({ email });
+    // Check if required fields are present
+    if (!name || !email || !password || !orgName || !planName) {
+      return res.status(400).json({ 
+        status: "error", 
+        message: "Missing required fields" 
+      });
+    }
+
+    // Check if user exists in users_org collection
+    const db = client.db("login-deatils");
+    const existingUser = await db.collection("users_org").findOne({ 
+      "User Email": email,
+      "Organisation Name": orgName 
+    });
+
     if (existingUser) {
-      return res.status(409).json({ status: "error", message: "User already exists" });
+      return res.status(409).json({ 
+        status: "error", 
+        message: "User already exists in this organization" 
+      });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert new user
-    const result = await collection.insertOne({
-      name,
-      email,
-      password: hashedPassword,
-      role: role || 'user',
-      status: 'Active',
-      lastLogin: null,
-      createdAt: new Date()
+    // Insert new user into users_org collection
+    const result = await db.collection("users_org").insertOne({
+      "User Email": email,
+      "Password": hashedPassword,
+      "Name": name,
+      "Plan": planName,
+      "Organisation Name": orgName
     });
 
     res.status(201).json({
@@ -89,57 +118,102 @@ app.post("/api/users", verifyToken, async (req, res) => {
         _id: result.insertedId,
         name,
         email,
-        role,
-        status: 'Active'
+        plan: planName,
+        organization: orgName
       }
     });
+
   } catch (e) {
-    res.status(500).json({ status: "error", message: "Failed to create user" });
+    console.error("Error creating user:", e);
+    res.status(500).json({ 
+      status: "error", 
+      message: "Failed to create user" 
+    });
   }
 });
+
 
 // Update user
 app.put("/api/users/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
-  const { name, email, role, status } = req.body;
+  const { name, email } = req.body;
+  const orgName = req.query.orgName; // Get organization name from query
 
   try {
-    const updateData = {
-      ...(name && { name }),
-      ...(email && { email }),
-      ...(role && { role }),
-      ...(status && { status })
-    };
+    // Validate required fields
+    if (!name && !email) {
+      return res.status(400).json({ 
+        status: "error", 
+        message: "At least one field (name or email) is required for update" 
+      });
+    }
 
-    const result = await collection.updateOne(
-      { _id: new ObjectId(id) },
+    // Prepare update data
+    const updateData = {};
+    if (name) updateData["Name"] = name;
+    if (email) updateData["User Email"] = email;
+
+    const db = client.db("login-deatils");
+    const result = await db.collection("users_org").updateOne(
+      { 
+        _id: new ObjectId(id),
+        "Organisation Name": orgName // Ensure we only update users from this organization
+      },
       { $set: updateData }
     );
 
     if (result.matchedCount === 0) {
-      return res.status(404).json({ status: "error", message: "User not found" });
+      return res.status(404).json({ 
+        status: "error", 
+        message: "User not found in this organization" 
+      });
     }
 
-    res.json({ status: "success", message: "User updated successfully" });
+    res.json({ 
+      status: "success", 
+      message: "User updated successfully" 
+    });
+
   } catch (e) {
-    res.status(500).json({ status: "error", message: "Failed to update user" });
+    console.error("Error updating user:", e);
+    res.status(500).json({ 
+      status: "error", 
+      message: "Failed to update user" 
+    });
   }
 });
+
 
 // Delete user
 app.delete("/api/users/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
+  const orgName = req.query.orgName; // Get organization name from query
 
   try {
-    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    const db = client.db("login-deatils");
+    const result = await db.collection("users_org").deleteOne({ 
+      _id: new ObjectId(id),
+      "Organisation Name": orgName // Ensure we only delete users from this organization
+    });
 
     if (result.deletedCount === 0) {
-      return res.status(404).json({ status: "error", message: "User not found" });
+      return res.status(404).json({ 
+        status: "error", 
+        message: "User not found in this organization" 
+      });
     }
 
-    res.json({ status: "success", message: "User deleted successfully" });
+    res.json({ 
+      status: "success", 
+      message: "User deleted successfully" 
+    });
+    
   } catch (e) {
-    res.status(500).json({ status: "error", message: "Failed to delete user" });
+    console.error("Error deleting user:", e);
+    res.status(500).json({ 
+      status: "error", 
+      message: "Failed to delete user" 
+    });
   }
 });
 
@@ -489,7 +563,261 @@ app.post("/api/users/add", async (req, res) => {
     });
   }
 });
+
+app.post("/signup1", async (req, res) => {
+  const { name, email, password } = req.body;
+
+  try {
+    console.log("Received signup request:", { name, email });
+
+    // Check if all fields are provided
+    if (!name || !email || !password) {
+      return res.status(400).json({ status: "error", message: "All fields are required" });
+    }
+
+    // Check if user already exists in users collection
+    const existingUser = await collection.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ status: "error", message: "User already exists" });
+    }
+
+    // Check if organization already exists
+    const db = client.db("login-deatils");
+    const orgCollection = db.collection("Organisation_Name");
+    const existingOrg = await orgCollection.findOne({ "User Email": email });
+    if (existingOrg) {
+      return res.status(409).json({ status: "error", message: "Organization already exists with this email" });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert new user into the users collection
+    const userResult = await collection.insertOne({
+      name,
+      email,
+      password: hashedPassword,
+      role: "user"
+    });
+
+    // Insert new organization into Organisation_Name collection
+    const orgResult = await orgCollection.insertOne({
+      "Organisation Name": name,
+      "User Email": email,
+      "Password": hashedPassword,
+      "createdAt": new Date()
+    });
+
+    console.log("New user created with ID:", userResult.insertedId);
+    console.log("New organization created with ID:", orgResult.insertedId);
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: userResult.insertedId, email },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // Respond with success
+    res.status(201).json({
+      status: "success",
+      message: "User and organization created successfully",
+      name: name,
+      token: token,
+      role: "user"
+    });
+  } catch (e) {
+    console.error("Server error during signup:", e);
+    res.status(500).json({ status: "error", message: "Server error", details: e.message });
+  }
+});
+
+app.post("/login1", async (req, res) => {
+  const { email, password, role } = req.body;
+  
+  try {
+    const db = client.db("login-deatils");
+    let collection;
+    let user;
+
+    switch(role) {
+      case 'user':
+        collection = db.collection("users_org");
+        user = await collection.findOne({ "User Email": email });
+        break;
+      
+      case 'admin':
+        collection = db.collection("Organisation_Name");
+        user = await collection.findOne({ "User Email": email });
+        break;
+      
+      case 'super admin':
+        collection = db.collection("users");
+        user = await collection.findOne({ email: email });
+        break;
+    }
+
+    if (user) {
+      const storedHash = role === 'super admin' ? user.password : user.Password;
+      const isPasswordValid = await bcrypt.compare(password, storedHash);
+
+      if (isPasswordValid) {
+        // Get the appropriate name based on role
+        let userName;
+        if (role === 'admin') {
+          userName = user["Organisation Name"];
+        } else if (role === 'user') {
+          userName = user["Name"];  // Assuming this is the field name in users_org
+        } else {
+          userName = user["name"];     // For super admin
+        }
+
+        const token = jwt.sign(
+          { 
+            userId: user._id, 
+            email: role === 'super admin' ? user.email : user["User Email"],
+            role: role
+          },
+          JWT_SECRET,
+          { expiresIn: '1h' }
+        );
+
+        res.status(200).json({ 
+          status: "success", 
+          message: "Login successful", 
+          name: userName,
+          role: role,
+          token: token
+        });
+        console.log(`${role} Logged In Successfully as ${userName}`);
+      } else {
+        res.status(401).json({ 
+          status: "error", 
+          message: "Invalid credentials" 
+        });
+      }
+    } else {
+      res.status(401).json({ 
+        status: "error", 
+        message: "Invalid credentials" 
+      });
+    }
+  } catch (e) {
+    console.error("Login error:", e);
+    res.status(500).json({ 
+      status: "error", 
+      message: "Server error",
+      details: e.message 
+    });
+  }
+});
+
 //////////////////////////////////// SUPER ADMIN ////////////////////////////////////////////////////////
+
+//////////////////////////////////// ORGANISATION ADMIN ////////////////////////////////////////////////////////
+
+
+// Organization details endpoint
+app.get("/api/organization-details/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const db = client.db("login-deatils");
+
+    // Get transaction details
+    const transaction = await db.collection("Transactions")
+      .findOne({ "Organisation Name": username });
+
+    if (!transaction) {
+      return res.status(404).json({
+        status: "error",
+        message: "Organization not found"
+      });
+    }
+
+    // Calculate max users based on plan
+    let max_user;
+    switch (transaction["Plan Name"]) {
+      case "Basic":
+        max_user = 1;
+        break;
+      case "Standard":
+        max_user = 5;
+        break;
+      case "Plus":
+        max_user = "10+";
+        break;
+      default:
+        max_user = 0;
+    }
+
+    // Count current users
+    const user_num = await db.collection("users_org")
+      .countDocuments({ "Organisation Name": username });
+
+    // Combine transaction data with user metrics
+    const responseData = {
+      ...transaction,  // Spread all transaction fields
+      max_user,
+      user_num
+    };
+
+    res.json({
+      status: "success",
+      data: responseData
+    });
+
+  } catch (error) {
+    console.error("Error fetching organization details:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to fetch organization details",
+      error: error.message
+    });
+  }
+});
+
+// Add this endpoint to your server code
+app.get("/api/payment-history/:orgName", async (req, res) => {
+  const { orgName } = req.params;
+
+  try {
+    const db = client.db("login-deatils");
+    const payments = await db.collection("History")
+      .find({ 
+        "Organisation Name": orgName 
+      })
+      .project({
+        "Plan Name": 1,
+        "Amount": 1,
+        "Date": 1,
+        "Payment Status": 1
+      })
+      .sort({ Date: -1 }) // Sort by date in descending order
+      .toArray();
+
+    const formattedPayments = payments.map(payment => ({
+      planName: payment["Plan Name"],
+      amount: payment.Amount,
+      date: payment.Date,
+      status: payment["Payment Status"] ? "Success" : "Failed"
+    }));
+
+    res.json({
+      status: "success",
+      data: formattedPayments
+    });
+
+  } catch (error) {
+    console.error("Error fetching payment history:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to fetch payment history",
+      error: error.message
+    });
+  }
+});
+//////////////////////////////////// ORGANISATION ADMIN ////////////////////////////////////////////////////////
+
 
 const PORT = 8000;
 app.listen(PORT, () => {

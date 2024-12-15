@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { 
     User, CreditCard, Clock, Settings, Search, Moon, Menu, 
     HelpCircle, Shield, KeyRound, Mail, Activity, Circle,
@@ -28,6 +28,15 @@ import {
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
+    const [userName, setUserName] = useState("");
+    
+      // Add this useEffect after your other useEffects
+      useEffect(() => {
+        const storedName = localStorage.getItem("userName");
+        if (storedName) {
+          setUserName(storedName);
+        }
+      }, []);
 
   // Sample data
   const userPlan = {
@@ -261,6 +270,14 @@ const UserDashboard = () => {
         case 'Dashboard':
             return (
                 <div className="space-y-6 mt-10">
+                  <div className="mb-6">
+              <h2 className="text-2xl font-bold text-white">
+                Welcome Back, {userName}
+              </h2>
+              <p className="text-gray-400 mt-1">
+                Here's what's happening with your organizations today.
+              </p>
+            </div>
                   {/* Top Status Cards */}
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <Card>
@@ -429,6 +446,14 @@ const UserDashboard = () => {
       default:
         return (
             <div className="space-y-6 mt-10">
+              <div className="mb-6">
+              <h2 className="text-2xl font-bold text-white">
+                Welcome Back, {userName}
+              </h2>
+              <p className="text-gray-400 mt-1">
+                Here's what's happening with your organizations today.
+              </p>
+            </div>
               {/* Top Status Cards */}
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <Card>

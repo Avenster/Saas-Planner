@@ -50,6 +50,16 @@ const Dashboard = () => {
     }
   };
 
+   const [userName, setUserName] = useState("");
+  
+    // Add this useEffect after your other useEffects
+    useEffect(() => {
+      const storedName = localStorage.getItem("userName");
+      if (storedName) {
+        setUserName(storedName);
+      }
+    }, []);
+
   const handleAddAdmin = async (formData) => {
     try {
       const response = await fetch('http://localhost:8000/api/users/add', {
@@ -150,6 +160,14 @@ const Dashboard = () => {
       case 'overview':
         return (
           <div className="space-y-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-white">
+                Welcome Back, {userName}
+              </h2>
+              <p className="text-gray-400 mt-1">
+                Here's what's happening with your organizations today.
+              </p>
+            </div>
             <div className="grid grid-cols-4 gap-4">
               <Card className="p-6">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
