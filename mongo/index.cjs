@@ -818,6 +818,149 @@ app.get("/api/payment-history/:orgName", async (req, res) => {
 });
 //////////////////////////////////// ORGANISATION ADMIN ////////////////////////////////////////////////////////
 
+//////////////////////////////////// ORGANISATION USER ////////////////////////////////////////////////////////
+// Dashboard data endpoint for user
+app.get("/api/user-dashboard/:userName", async (req, res) => {
+  try {
+    const { userName } = req.params;
+    const db = client.db("login-deatils");
+
+    // First find the organization name for the user
+    const userOrg = await db.collection("users_org").findOne(
+      { "Name": userName },
+      { projection: { "Organisation Name": 1 } }
+    );
+
+    if (!userOrg) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found"
+      });
+    }
+
+    const orgName = userOrg["Organisation Name"];
+
+    // Get transaction details for the organization
+    const transaction = await db.collection("Transactions").findOne(
+      { "Organisation Name": orgName }
+    );
+
+    if (!transaction) {
+      return res.status(404).json({
+        status: "error",
+        message: "Transaction details not found"
+      });
+    }
+
+    // Count users in the organization
+    const userCount = await db.collection("users_org").countDocuments({
+      "Organisation Name": orgName
+    });
+
+    // Combine all data
+    const dashboardData = {
+      organizationName: transaction["Organisation Name"],
+      planName: transaction["Plan Name"],
+      amount: transaction["Amount"],
+      date: transaction["Date"],
+      renewalDate: transaction["Renewal Date"],
+      paymentStatus: transaction["Payment Status"],
+      user_num: userCount
+    };
+
+    res.json({
+      status: "success",
+      data: dashboardData
+    });
+
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to fetch dashboard data",
+      error: error.message
+    });
+  }
+});
+
+app.get("/api/order-history/:userName", async (req, res) => {
+  try {
+    const { userName } = req.params;
+    const db = client.db("login-deatils");
+
+    // First find the organization name for the user
+    const userOrg = await db.collection("users_org").findOne(
+      { "Name": userName },
+      { projection: { "Organisation Name": 1 } }
+    );
+
+    if (!userOrg) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found"
+      });
+    }
+
+    // Get all history entries for this organization
+    const history = await db.collection("History")
+      .find({ "Organisation Name": userOrg["Organisation Name"] })
+      .sort({ Date: -1 }) // Sort by date in descending order
+      .toArray();
+
+    res.json({
+      status: "success",
+      data: history
+    });
+
+  } catch (error) {
+    console.error("Error fetching order history:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to fetch order history",
+      error: error.message
+    });
+  }
+});
+
+app.get("/api/user-profile/:userName", async (req, res) => {
+  try {
+    const { userName } = req.params;
+    const db = client.db("login-deatils");
+
+    const userProfile = await db.collection("users_org").findOne(
+      { "Name": userName },
+      { projection: { "Name": 1, "User Email": 1 } }
+    );
+
+    if (!userProfile) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found"
+      });
+    }
+
+    res.json({
+      status: "success",
+      data: {
+        name: userProfile.Name,
+        email: userProfile["User Email"]
+      }
+    });
+
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to fetch user profile"
+    });
+  }
+});
+
+
+//////////////////////////////////// ORGANISATION USER ////////////////////////////////////////////////////////
+
+
+
 
 const PORT = 8000;
 app.listen(PORT, () => {

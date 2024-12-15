@@ -30,7 +30,7 @@ import {
   Shield,
   Mail,
   Receipt,
-  Gauge
+  Gauge,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
@@ -430,15 +430,15 @@ const AdminDashboard = () => {
     setFormData({ name: "", email: "", password: "", role: "user" });
   };
 
-  const [supportForm, setSupportForm] = useState({ subject: '', message: '' });
+  const [supportForm, setSupportForm] = useState({ subject: "", message: "" });
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSupportSubmit = (e) => {
     e.preventDefault();
-    
+
     setShowSuccess(true);
- 
-    setSupportForm({ subject: '', message: '' });
+
+    setSupportForm({ subject: "", message: "" });
 
     setTimeout(() => {
       setShowSuccess(false);
@@ -790,62 +790,72 @@ const AdminDashboard = () => {
           </div>
         );
 
-        case 'support':
-          return (
-            <div className="space-y-4">
-              <h2 className="text-m font-bold text-white">Support</h2>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contact Super Admin</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form className="space-y-4" onSubmit={handleSupportSubmit}>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2">
-                        Subject
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full bg-black-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="e.g., Request to increase user limit"
-                        value={supportForm.subject}
-                        onChange={(e) => setSupportForm({ ...supportForm, subject: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2">
-                        Message
-                      </label>
-                      <textarea
-                        className="w-full bg-black-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        rows={4}
-                        placeholder="Describe your request..."
-                        value={supportForm.message}
-                        onChange={(e) => setSupportForm({ ...supportForm, message: e.target.value })}
-                        required
-                      ></textarea>
-                    </div>
-                    <div className="flex flex-col space-y-2">
-                      <button 
-                        type="submit" 
-                        className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        Send Request
-                      </button>
-                      {showSuccess && (
-                        <div className="text-green-500 text-center animate-fade-in">
-                          Message sent successfully
-                        </div>
-                      )}
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-          );
+      case "support":
+        return (
+          <div className="space-y-4">
+            <h2 className="text-m font-bold text-white">Support</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Super Admin</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form className="space-y-4" onSubmit={handleSupportSubmit}>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Subject
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full bg-black-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., Request to increase user limit"
+                      value={supportForm.subject}
+                      onChange={(e) =>
+                        setSupportForm({
+                          ...supportForm,
+                          subject: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Message
+                    </label>
+                    <textarea
+                      className="w-full bg-black-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      rows={4}
+                      placeholder="Describe your request..."
+                      value={supportForm.message}
+                      onChange={(e) =>
+                        setSupportForm({
+                          ...supportForm,
+                          message: e.target.value,
+                        })
+                      }
+                      required
+                    ></textarea>
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <button
+                      type="submit"
+                      className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      Send Request
+                    </button>
+                    {showSuccess && (
+                      <div className="text-green-500 text-center animate-fade-in">
+                        Message sent successfully
+                      </div>
+                    )}
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        );
 
-        case "Dashboard":
+      case "Dashboard":
         return (
           <div className="space-y-6">
             <div className="mb-6">
@@ -1003,7 +1013,10 @@ const AdminDashboard = () => {
 
             {/* Quick Actions Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <button className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors">
+              <button
+                onClick={() => setActiveTab("users")} // Switch to User Management tab
+                className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors"
+              >
                 <UserPlus className="h-5 w-5 text-blue-400" />
                 <span className="text-sm">Add User</span>
               </button>
@@ -1011,11 +1024,17 @@ const AdminDashboard = () => {
                 <ArrowUpCircle className="h-5 w-5 text-green-400" />
                 <span className="text-sm">Upgrade Plan</span>
               </button>
-              <button className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors">
+              <button
+                onClick={() => setActiveTab("plan")} // Switch to Plan & Billing tab
+                className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors"
+              >
                 <FileText className="h-5 w-5 text-purple-400" />
                 <span className="text-sm">View Invoices</span>
               </button>
-              <button className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors">
+              <button
+                onClick={() => setActiveTab("support")} // Switch to Support tab
+                className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors"
+              >
                 <HelpCircle className="h-5 w-5 text-orange-400" />
                 <span className="text-sm">Get Support</span>
               </button>
@@ -1377,7 +1396,10 @@ const AdminDashboard = () => {
 
             {/* Quick Actions Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <button className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors">
+              <button
+                onClick={() => setActiveTab("users")} // Switch to User Management tab
+                className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors"
+              >
                 <UserPlus className="h-5 w-5 text-blue-400" />
                 <span className="text-sm">Add User</span>
               </button>
@@ -1385,11 +1407,17 @@ const AdminDashboard = () => {
                 <ArrowUpCircle className="h-5 w-5 text-green-400" />
                 <span className="text-sm">Upgrade Plan</span>
               </button>
-              <button className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors">
+              <button
+                onClick={() => setActiveTab("plan")} // Switch to Plan & Billing tab
+                className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors"
+              >
                 <FileText className="h-5 w-5 text-purple-400" />
                 <span className="text-sm">View Invoices</span>
               </button>
-              <button className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors">
+              <button
+                onClick={() => setActiveTab("support")} // Switch to Support tab
+                className="flex items-center justify-center gap-3 p-4 bg-black-800 border border-white/10 rounded-lg hover:bg-gray-700 transition-colors"
+              >
                 <HelpCircle className="h-5 w-5 text-orange-400" />
                 <span className="text-sm">Get Support</span>
               </button>
