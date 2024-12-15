@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { type LoaderFunctionArgs } from "@remix-run/node";
-import { NavLink, useNavigate } from "@remix-run/react";
+import { Navigate, NavLink, useNavigate } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import { Settings, Home, FileText, BarChart3, CreditCard, Files, 
          BookOpen, HelpCircle, Menu, Search, Moon, ClipboardList, LogOut } from 'lucide-react';
@@ -43,6 +43,12 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const handlebutton = ()=>{
+    navigate('/pricing');
+  }
+  
+  
+  
 
   // Set isClient to true when component mounts on client
   useEffect(() => {
@@ -138,8 +144,8 @@ export default function Dashboard() {
                     <NavLink
                       to={item.path}
                       className={({ isActive }) => 
-                        `flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors ${
-                          isActive ? 'bg-gray-800 text-white' : 'text-gray-300'
+                        `flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors ${
+                          isActive ? 'bg-white/10 text-white' : 'text-gray-300'
                         }`
                       }
                     >
@@ -157,11 +163,11 @@ export default function Dashboard() {
         <div className="p-4 border border-white/10 w-[90%] mb-6 ml-3 rounded-lg">
           <div className="mb-4">
             <h3 className="text-white font-medium">Upgrade to Pro</h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-smm text-gray-500">
               Unlock all features and get unlimited access to our support team.
             </p>
           </div>
-          <button className="w-full bg-white text-black py-2 rounded-3xl hover:bg-gray-100 transition-colors">
+          <button className="w-full bg-white text-black py-2 rounded-3xl hover:bg-gray-100 transition-colors" onClick={handlebutton}>
             Upgrade
           </button>
         </div>
@@ -178,13 +184,13 @@ export default function Dashboard() {
               <input
                 type="text"
                 placeholder="Search documentation..."
-                className="w-full  rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full  rounded-lg pl-10 pr-4 py-2 text-smm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">⌘K</span>
+              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-smm">⌘K</span>
             </div>
           </div>
           <div className="flex items-center gap-4 ml-4">
-            <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+            <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
               <Moon size={18} />
             </button>
 
@@ -204,10 +210,10 @@ export default function Dashboard() {
 
           {/* Empty state */}
           <div className="flex flex-col items-center justify-center h-[400px] text-center">
-            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
               <FileText size={24} />
             </div>
-            <h2 className="text-xl font-semibold text-white mb-2">No content created</h2>
+            <h2 className="text-sm font-semibold text-white mb-2">No content created</h2>
             <p className="text-gray-400 mb-4">
               You don't have any content yet. Start creating content.
             </p>

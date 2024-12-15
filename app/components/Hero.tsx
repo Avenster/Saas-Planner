@@ -3,7 +3,7 @@ import { ArrowRight, Github } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section className="min-h-[450px] flex items-center justify-center bg-black">
+    <section className="min-h-[500px] flex items-center justify-center bg-black">
       <div className="w-[80%] mx-auto text-center">
         {/* Header Badge */}
         <div className="flex justify-center mb-8">

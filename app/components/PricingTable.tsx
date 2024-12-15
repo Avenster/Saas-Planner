@@ -48,10 +48,10 @@ const PricingTable = () => {
         <p className="text-gray-400">Find the perfect plan tailored for your business needs!</p>
       </div>
 
-      <div className="rounded-lg overflow-hidden border border-gray-800">
+      <div className="rounded-lg overflow-hidden border border-white/10">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-gray-900">
+            <tr className="bg-white/5">
               <th className="py-5 px-6 text-left"></th>
               {['Basic','Standard','Plus'].map((plan) => (
                 <th key={plan} className="py-5 px-6 text-center text-white text-lg font-semibold">
@@ -60,9 +60,9 @@ const PricingTable = () => {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-800">
+          <tbody className="divide-y divide-white/10">
             {features.map((feature, index) => (
-              <tr key={index} className="border-t border-gray-800 hover:bg-gray-900/50 transition-colors">
+              <tr key={index} className="border-t border-white/10 hover:bg-gray-900/50 transition-colors">
                 <td className="py-4 px-6 text-white flex items-center gap-2">
                   {feature.name}
                   {feature.hasTooltip && (
@@ -73,9 +73,9 @@ const PricingTable = () => {
                     </button>
                   )}
                 </td>
-                <td className="py-4 px-6 text-center border-l border-gray-800">{renderValue(feature.basic)}</td>
-                <td className="py-4 px-6 text-center border-l border-gray-800">{renderValue(feature.standard)}</td>
-                <td className="py-4 px-6 text-center border-l border-gray-800">{renderValue(feature.plus)}</td>
+                <td className="py-4 px-6 text-center border-l border-white/10">{renderValue(feature.basic)}</td>
+                <td className="py-4 px-6 text-center border-l border-white/10">{renderValue(feature.standard)}</td>
+                <td className="py-4 px-6 text-center border-l border-white/10">{renderValue(feature.plus)}</td>
                 
               </tr>
             ))}

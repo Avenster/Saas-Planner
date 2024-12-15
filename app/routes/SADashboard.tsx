@@ -16,7 +16,7 @@ import {
   } from 'lucide-react';
   import {  Package, Briefcase, Crown, Check } from 'lucide-react';
   
-import { NavLink } from "@remix-run/react";
+import { NavLink, useNavigate } from "@remix-run/react";
 import {
   Card,
   CardContent,
@@ -38,6 +38,17 @@ const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [organizationData, setOrganizationData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    removeLocalStorage('token');
+    removeLocalStorage('userName');
+    navigate('/Login');
+  };
+  const removeLocalStorage = (key: string): void => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(key);
+    }
+  };
 
   const handleAddAdmin = async (formData) => {
     try {
@@ -199,7 +210,7 @@ const Dashboard = () => {
                           <span>{plan} Plan</span>
                           <span>{count} subscriptions</span>
                         </div>
-                        <div className="w-full bg-gray-800 rounded-full h-2">
+                        <div className="w-full bg-white/10 rounded-full h-2">
                           <div 
                             className={`h-2 rounded-full ${
                               plan === 'Basic' ? 'bg-blue-500' : 
@@ -279,7 +290,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-3 gap-6">
         {/* Basic Plan */}
-        <div className="relative rounded-2xl bg-gradient-to-b from-gray-900 to-black p-8 border border-gray-800 hover:border-gray-700 transition-all duration-300 group">
+        <div className="relative rounded-2xl bg-gradient-to-b from-gray-900 to-black p-8 border border-white/10 hover:border-gray-700 transition-all duration-300 group">
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           
           {/* Popular tag */}
@@ -293,7 +304,7 @@ const Dashboard = () => {
                 <div className="p-2 rounded-lg bg-blue-500/20">
                   <Package size={20} className="text-blue-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-white">Basic</h3>
+                <h3 className="text-m font-semibold text-white">Basic</h3>
               </div>
 
               <div className="space-y-2">
@@ -317,7 +328,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div className="pt-6 border-t border-gray-800 space-y-4">
+            <div className="pt-6 border-t border-white/10 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-gray-400">Active Subscriptions</span>
                 <div className="flex items-center gap-2">
@@ -335,7 +346,7 @@ const Dashboard = () => {
         </div>
 
         {/* Standard Plan */}
-        <div className="relative rounded-2xl bg-gradient-to-b from-gray-900 to-black p-8 border border-gray-800 hover:border-gray-700 transition-all duration-300 group">
+        <div className="relative rounded-2xl bg-gradient-to-b from-gray-900 to-black p-8 border border-white/10 hover:border-gray-700 transition-all duration-300 group">
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           
           <div className="space-y-6 relative">
@@ -344,7 +355,7 @@ const Dashboard = () => {
                 <div className="p-2 rounded-lg bg-green-500/20">
                   <Briefcase size={20} className="text-green-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-white">Standard</h3>
+                <h3 className="text-m font-semibold text-white">Standard</h3>
               </div>
 
               <div className="space-y-2">
@@ -368,7 +379,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div className="pt-6 border-t border-gray-800 space-y-4">
+            <div className="pt-6 border-t border-white/10 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-gray-400">Active Subscriptions</span>
                 <div className="flex items-center gap-2">
@@ -386,7 +397,7 @@ const Dashboard = () => {
         </div>
 
         {/* Plus Plan */}
-        <div className="relative rounded-2xl bg-gradient-to-b from-gray-900 to-black p-8 border border-gray-800 hover:border-gray-700 transition-all duration-300 group">
+        <div className="relative rounded-2xl bg-gradient-to-b from-gray-900 to-black p-8 border border-white/10 hover:border-gray-700 transition-all duration-300 group">
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-500/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           
           {/* Best value tag */}
@@ -400,7 +411,7 @@ const Dashboard = () => {
                 <div className="p-2 rounded-lg bg-orange-500/20">
                   <Crown size={20} className="text-orange-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-white">Plus</h3>
+                <h3 className="text-m font-semibold text-white">Plus</h3>
               </div>
 
               <div className="space-y-2">
@@ -424,7 +435,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div className="pt-6 border-t border-gray-800 space-y-4">
+            <div className="pt-6 border-t border-white/10 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-gray-400">Active Subscriptions</span>
                 <div className="flex items-center gap-2">
@@ -447,9 +458,9 @@ const Dashboard = () => {
     return (
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-white">Organizations</h2>
+          <h2 className="text-m font-bold text-white">Organizations</h2>
           <div className="flex gap-2">
-            <button className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <button className="bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               Export
             </button>
             <button className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
@@ -484,7 +495,7 @@ const Dashboard = () => {
                   </TableCell>
                   <TableCell>{org["Renewal Date"]}</TableCell>
                   <TableCell className="text-right">
-                    <button className="text-blue-500 hover:text-blue-400">Edit</button>
+                    <button className="bg-white rounded-xl px-5 py-1 text-black">Edit</button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -497,8 +508,8 @@ const Dashboard = () => {
       return (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-white">Payment Logs</h2>
-            <button className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <h2 className="text-m font-bold text-white">Payment Logs</h2>
+            <button className="bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
               Export Logs
             </button>
           </div>
@@ -531,7 +542,7 @@ const Dashboard = () => {
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <button className="text-blue-500 hover:text-blue-400">View</button>
+                      <button className="bg-white text-black px-4 rounded-xl py-1">View</button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -545,7 +556,7 @@ case 'admins':
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-white">Admin Management</h2>
+        <h2 className="text-m font-bold text-white">Admin Management</h2>
         <button 
         className="bg-white text-black px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
         onClick={() => setIsModalOpen(true)}
@@ -573,9 +584,9 @@ case 'admins':
               <TableRow key={index}>
                 <TableCell className="font-medium">{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell className="text-right">
-                  <button className="text-blue-500 hover:text-blue-400 mr-2">Edit</button>
-                  <button className="text-red-500 hover:text-red-400">Remove</button>
+                <TableCell className="text-right gap-2 flex justify-between">
+                  <button className="bg-white text-black px-6 py-1 rounded-xl">Edit</button>
+                  <button className="ml-2 bg-black text-white px-3 py-1 rounded-xl border border-white/10">Remove</button>
                 </TableCell>
               </TableRow>
             ))}
@@ -590,9 +601,9 @@ case 'admins':
   return (
     <div className="flex h-screen bg-black text-gray-300">
       {/* Sidebar */}
-      <div className="w-72 border-r border-gray-800 flex flex-col">
+      <div className="w-72 border-r border-white/10 flex flex-col">
         {/* Project selector */}
-        <div className="ml-8 p-4 border-b border-gray-800">
+        <div className="h-[4.5rem] flex items-center justify-between p-4 border-b border-white/10">
           <button className="flex items-center gap-2 text-white">
             <div className="w-2 h-2 rounded-full bg-blue-500"></div>
             Admin Dashboard
@@ -609,8 +620,8 @@ case 'admins':
                 <li key={idx}>
                   <button
                     onClick={() => setActiveTab(item.tab)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors ${
-                      activeTab === item.tab ? 'bg-gray-800 text-white' : 'text-gray-300'
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors ${
+                      activeTab === item.tab ? 'bg-white/10 text-white' : 'text-gray-300'
                     }`}
                   >
                     {item.icon}
@@ -626,22 +637,23 @@ case 'admins':
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="border-b border-gray-800 p-4 flex items-center justify-between">
+        <header className="h-[4.5rem]  border-b border-white/10 p-4 flex items-center justify-between">
           <div className="flex-1 max-w-xl">
             <div className="relative">
               <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
               <input
                 type="text"
                 placeholder="Search..."
-                className="w-full bg-gray-900 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-black-800 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
           <div className="flex items-center gap-4 ml-4">
-            <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+            <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
               <Moon size={18} />
             </button>
-            <div className="w-8 h-8 rounded-full bg-gray-700"></div>
+            <button onClick={handleLogout} className="flex justify-center items-center w-[8rem] h-8 bg-white text-black rounded-full"> Logout</button>
+            <div className="w-8 h-8 overflow-hidden border border-white/10 rounded-full bg-gray-700"> <img src="/avatar-svgrepo-com.svg" alt="" /></div>
           </div>
         </header>
 

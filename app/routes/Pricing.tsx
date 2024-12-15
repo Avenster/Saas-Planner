@@ -9,6 +9,8 @@ export default function PricingPage() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   
 
   // Check authentication status on component mount
@@ -32,50 +34,47 @@ export default function PricingPage() {
 
   const handleSubscription = async (planType) => {
     if (!user) {
-      // Redirect to login if user is not authenticated
-      // Store the intended destination to redirect back after login
       sessionStorage.setItem('redirectAfterLogin', '/pricing');
       navigate('/login');
       return;
     }
 
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const stripe = await stripePromise;
+      const lookup_key = plans[planType][billingCycle].lookup_key;
       
-      // Create Stripe checkout session on your backend
-      const response = await fetch('/api/create-checkout-session', {
+      // Create checkout session
+      const response = await fetch('http://localhost:4242/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          priceId: billingCycle === 'monthly' 
-            ? plans[planType].stripeMonthlyPriceId 
-            : plans[planType].stripeYearlyPriceId,
+          lookup_key,
           userId: user.id
         }),
       });
 
-      const session = await response.json();
-
-      // Redirect to Stripe Checkout
-      const result = await stripe.redirectToCheckout({
-        sessionId: session.id,
-      });
-
-      if (result.error) {
-        console.error(result.error);
-        // Handle errors here
+      if (response.status === 303) {
+        const data = await response.json();
+        window.location.href = data.url;
+      } else {
+        throw new Error('Failed to create checkout session');
       }
     } catch (error) {
-      console.error('Payment initiation failed:', error);
+      setError('Payment initiation failed. Please try again.');
+      console.error('Payment error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Modified button components to use the new handler
   const SubscribeButton = ({ planType, children }) => (
     <button 
-      onClick={() => handleSubscription(planType)}
+    onClick={() => handleSubscription(planType)}
       className={`w-full py-3 px-4 rounded-[2rem] ${
         planType === 'standard' 
           ? 'bg-white text-black hover:bg-gray-100' 
@@ -104,16 +103,16 @@ export default function PricingPage() {
 
   return (
     <Layout>
-    <div className="min-h-screen  bg-black text-white px-4 py-16 mt-20">
+    <div className="min-h-screen  bg-black text-white px-4 py-16 ">
       {/* Header Section */}
       <div className="text-center mb-16">
         <p className="text-indigo-400 mb-4">Pricing</p>
         <h1 className="text-5xl font-bold mb-12">Start at full speed!</h1>
         
         {/* Billing Toggle */}
-        <div className="inline-flex bg-black border border-white/10 rounded-[2rem] rounded-full p-1">
+        <div className="inline-flex bg-black border h-[2.5rem] border-white/10 rounded-[2rem] rounded-full p-1">
           <button
-            className={`px-6 py-2 rounded-full transition-colors ${
+            className={`flex items-center px-6 py-2 rounded-full transition-colors ${
               billingCycle === "yearly" ? "bg-white text-black" : "text-gray-400"
             }`}
             onClick={() => setBillingCycle("yearly")}
@@ -121,7 +120,7 @@ export default function PricingPage() {
             Yearly 
           </button>
           <button
-            className={`px-6 py-2 rounded-full transition-colors ${
+            className={`px-6 py-2 flex items-center rounded-full transition-colors ${
               billingCycle === "monthly" ? "bg-white text-black" : "text-gray-400"
             }`}
             onClick={() => setBillingCycle("monthly")}
