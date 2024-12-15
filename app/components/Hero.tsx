@@ -19,7 +19,7 @@ export default function Hero() {
         <h1 className="text-6xl font-bold mb-4">
           Scale Your Vision
           <br />
-          with <span className="text-indigo-500">TensorGo</span>
+          with <span className="text-indigo-500">Avenster</span>
         </h1>
 
         {/* Subheading */}

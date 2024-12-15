@@ -68,7 +68,7 @@ export default function Footer() {
 
           {/* Icons */}
           <div className="flex items-center gap-3">
-            <Link to="*" className="hover:text-white">
+            <Link to="https://github.com/Avenster/Saas-Planner" className="hover:text-white">
               <Github size={18} />
             </Link>
             <button className="hover:text-white">

@@ -4,6 +4,12 @@ export default {
   content: ["./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      colors: {
+        border: 'white/10',
+        background: '#f5f5f5', 
+        foreground: '#fff',
+      },
+    
       animation: {
         blob: "blob 7s infinite",
       },
@@ -29,5 +35,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")]
 } satisfies Config;
