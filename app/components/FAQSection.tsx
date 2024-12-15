@@ -10,28 +10,33 @@ interface FAQItem {
 const FAQSection = () => {
   const [faqs, setFaqs] = useState<FAQItem[]>([
     {
-      question: "What is the cost of the free plan?",
-      answer: "Our free plan is completely free, with no monthly or annual charges. It's a great way to get started and explore our basic features.",
+      question: "What is the cost of the Basic plan?",
+      answer: "The Basic plan is free for 14 days and allows a single user to access limited features, making it ideal for individuals who want to explore our platform.",
       isOpen: false
     },
     {
-      question: "How much does the Basic Monthly plan cost?",
-      answer: "The Basic Monthly plan starts at $9.99 per month, offering enhanced features and increased usage limits compared to the free plan.",
+      question: "How much does the Standard plan cost?",
+      answer: "The Standard plan costs INR 4999 per year, per user, and supports up to 5 users. It includes enhanced features like custom branding and priority email and chat support.",
       isOpen: false
     },
     {
-      question: "What is the price of the Pro Monthly plan?",
-      answer: "The Pro Monthly plan is priced at $29.99 per month, providing access to advanced features and priority support.",
+      question: "What is the price of the Plus plan?",
+      answer: "The Plus plan is priced at INR 3999 per year, per user for teams with more than 10 users. It offers advanced features such as 24/7 priority support and custom integrations.",
       isOpen: false
     },
     {
-      question: "Do you offer any annual subscription plans?",
-      answer: "Yes, we offer annual plans with a 20% discount compared to monthly billing. This makes it a cost-effective choice for long-term users.",
+      question: "Do you offer any trial periods?",
+      answer: "Yes, all plans include a 14-day free trial. No credit card is required to get started.",
       isOpen: false
     },
     {
-      question: "Is there a trial period for the paid plans?",
-      answer: "Yes, all paid plans come with a 14-day free trial. No credit card is required to start your trial.",
+      question: "Are there any limitations on the Basic plan?",
+      answer: "Yes, the Basic plan is limited to a single user and provides access to core features like analytics but excludes advanced features such as custom branding or API access.",
+      isOpen: false
+    },
+    {
+      question: "Can I upgrade my plan at any time?",
+      answer: "Absolutely! You can upgrade from Basic to Standard or Plus at any time to access additional features and increased usage limits.",
       isOpen: false
     }
   ]);

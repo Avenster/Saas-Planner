@@ -5,30 +5,31 @@ type FeatureValue = boolean | string | '-';
 interface Feature {
   name: string;
   hasTooltip: boolean;
-  starter: FeatureValue;
-  pro: FeatureValue;
-  business: FeatureValue;
-  enterprise: FeatureValue;
+  basic: FeatureValue;
+  standard: FeatureValue;
+  plus: FeatureValue;
+ 
 }
 
 const PricingTable = () => {
-  const features: Feature[] = [
-    { name: 'Access to Analytics', hasTooltip: true, starter: true, pro: true, business: true, enterprise: 'Custom' },
-    { name: 'Custom Branding', hasTooltip: true, starter: '-', pro: '500/mo', business: '1,500/mo', enterprise: 'Unlimited' },
-    { name: 'Priority Support', hasTooltip: false, starter: '-', pro: 'Email', business: 'Email & Chat', enterprise: '24/7 Support' },
-    { name: 'Advanced Reporting', hasTooltip: true, starter: '-', pro: '-', business: true, enterprise: 'Custom' },
-    { name: 'Dedicated Manager', hasTooltip: true, starter: '-', pro: '-', business: '-', enterprise: true },
-    { name: 'API Access', hasTooltip: false, starter: 'Limited', pro: 'Standard', business: 'Enhanced', enterprise: 'Full' },
-    { name: 'Monthly Webinars', hasTooltip: true, starter: '-', pro: true, business: true, enterprise: 'Custom' },
-    { name: 'Custom Integrations', hasTooltip: true, starter: '-', pro: '-', business: 'Available', enterprise: 'Available' },
-    { name: 'Roles and Permissions', hasTooltip: true, starter: '-', pro: 'Basic', business: 'Advanced', enterprise: 'Advanced' },
-    { name: 'Onboarding Assistance', hasTooltip: true, starter: '-', pro: 'Self-service', business: 'Assisted', enterprise: 'Full Service' }
+  const features = [
+    { name: 'Access to Analytics', hasTooltip: true, basic: true, standard: true, plus: true },
+    { name: 'Custom Branding', hasTooltip: true, basic: '-', standard: 'INR 4999 Per Year, Per User', plus: 'INR 3999 Per Year, Per User' },
+    { name: 'Priority Support', hasTooltip: false, basic: '-', standard: 'Email & Chat', plus: '24/7 Support' },
+    { name: 'Advanced Reporting', hasTooltip: true, basic: '-', standard: true, plus: true },
+    { name: 'Dedicated Manager', hasTooltip: true, basic: '-', standard: '-', plus: 'Available' },
+    { name: 'API Access', hasTooltip: false, basic: 'Limited', standard: 'Standard', plus: 'Enhanced' },
+    { name: 'Monthly Webinars', hasTooltip: true, basic: '-', standard: true, plus: true },
+    { name: 'Custom Integrations', hasTooltip: true, basic: '-', standard: 'Available', plus: 'Available' },
+    { name: 'Roles and Permissions', hasTooltip: true, basic: '-', standard: 'Basic', plus: 'Advanced' },
+    { name: 'Onboarding Assistance', hasTooltip: true, basic: '-', standard: 'Self-service', plus: 'Assisted' }
   ];
+
 
   const renderValue = (value: FeatureValue) => {
     if (value === true) {
       return (
-        <svg className="w-5 h-5 mx-auto text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+        <svg className="w-5 h-5 mx-auto text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
         </svg>
       );
@@ -42,7 +43,7 @@ const PricingTable = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 mb-16 mt-32">
       <div className="text-center mb-16">
-        <p className="text-blue-500 mb-4">Plans</p>
+        <p className="text-indigo-400 mb-4">Plans</p>
         <h2 className="text-4xl font-bold text-white mb-4">Compare Our Plans</h2>
         <p className="text-gray-400">Find the perfect plan tailored for your business needs!</p>
       </div>
@@ -52,7 +53,7 @@ const PricingTable = () => {
           <thead>
             <tr className="bg-gray-900">
               <th className="py-5 px-6 text-left"></th>
-              {['Starter', 'Pro', 'Business', 'Enterprise'].map((plan) => (
+              {['Basic','Standard','Plus'].map((plan) => (
                 <th key={plan} className="py-5 px-6 text-center text-white text-lg font-semibold">
                   {plan}
                 </th>
@@ -72,10 +73,10 @@ const PricingTable = () => {
                     </button>
                   )}
                 </td>
-                <td className="py-4 px-6 text-center border-l border-gray-800">{renderValue(feature.starter)}</td>
-                <td className="py-4 px-6 text-center border-l border-gray-800">{renderValue(feature.pro)}</td>
-                <td className="py-4 px-6 text-center border-l border-gray-800">{renderValue(feature.business)}</td>
-                <td className="py-4 px-6 text-center border-l border-gray-800">{renderValue(feature.enterprise)}</td>
+                <td className="py-4 px-6 text-center border-l border-gray-800">{renderValue(feature.basic)}</td>
+                <td className="py-4 px-6 text-center border-l border-gray-800">{renderValue(feature.standard)}</td>
+                <td className="py-4 px-6 text-center border-l border-gray-800">{renderValue(feature.plus)}</td>
+                
               </tr>
             ))}
           </tbody>

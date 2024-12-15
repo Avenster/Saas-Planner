@@ -104,7 +104,7 @@ export default function PricingPage() {
 
   return (
     <Layout>
-    <div className="min-h-screen  bg-black text-white px-4 py-16">
+    <div className="min-h-screen  bg-black text-white px-4 py-16 mt-20">
       {/* Header Section */}
       <div className="text-center mb-16">
         <p className="text-indigo-400 mb-4">Pricing</p>
@@ -138,7 +138,7 @@ export default function PricingPage() {
           <div className="mb-8">
             <h2 className="text-gray-400 mb-4">BASIC</h2>
             <div className="text-4xl font-bold">
-              ₹0 <span className="text-gray-400 text-lg font-normal">/month</span>
+              ₹0 
             </div>
             <div className="text-sm text-gray-500 mt-2">
               14 Days Free Trial
@@ -182,13 +182,15 @@ export default function PricingPage() {
         <div className="border border-white/10 rounded-[2rem] p-8 ring-1 ring-indigo-500">
           <div className="mb-8">
             <h2 className="text-gray-400 mb-4">STANDARD</h2>
-            <div className="text-4xl font-bold">
-              ₹{billingCycle === "monthly" ? plans.standard.monthly : plans.standard.yearly}
-              <span className="text-gray-400 text-lg font-normal">/year</span>
-            </div>
-            <div className="text-sm text-gray-500 mt-2">
-              Up to 5 users
-            </div>
+
+           <div className="text-4xl font-bold">
+  ₹{billingCycle === "monthly" ? plans.standard.monthly : plans.standard.yearly}
+  <span className="text-gray-400 text-lg font-normal">/{billingCycle === "monthly" ? "month" : "year"}</span>
+</div>
+
+<div className="text-sm text-gray-500 mt-2">
+  Up to 5 users (₹{billingCycle === "monthly" ? "2495 monthly" : "24995 yearly"})
+</div>
           </div>
 
           <ul className="space-y-4 mb-8">
@@ -225,13 +227,15 @@ export default function PricingPage() {
         <div className="border border-white/10 rounded-[2rem] p-8">
           <div className="mb-8">
             <h2 className="text-gray-400 mb-4">PLUS</h2>
+
             <div className="text-4xl font-bold">
-              ₹{billingCycle === "monthly" ? plans.plus.monthly : plans.plus.yearly}
-              <span className="text-gray-400 text-lg font-normal">/year</span>
-            </div>
-            <div className="text-sm text-gray-500 mt-2">
-              Minimum 10 users (₹{plans.plus.yearlyTotal} yearly)
-            </div>
+  ₹{billingCycle === "monthly" ? plans.plus.monthly : plans.plus.yearly}
+  <span className="text-gray-400 text-lg font-normal">/{billingCycle === "monthly" ? "month" : "year"}</span>
+</div>
+
+<div className="text-sm text-gray-500 mt-2">
+  Minimum 10 users (₹{billingCycle === "monthly" ? "3990 monthly" : plans.plus.yearlyTotal + " yearly"})
+</div>
           </div>
 
           <ul className="space-y-4 mb-8">

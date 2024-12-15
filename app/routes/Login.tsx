@@ -5,6 +5,7 @@ import { Mail } from "lucide-react";
 import Layout from "~/components/Layout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -102,7 +103,7 @@ export default function Login() {
               onClick={() => loginWithRedirect()}
               className="w-full py-3 px-4 bg-black/60 border border-white/10 rounded-xl flex items-center justify-center gap-2 hover:bg-black/80 transition-all duration-200"
             >
-               <FontAwesomeIcon icon={faGoogle}  size={20} />
+               {/* <FontAwesomeIcon icon={faGoogle} size="xs" /> */}
               Continue with Google
             </button>
           </div>
@@ -147,7 +148,11 @@ export default function Login() {
                     required
                   />
                 </div>
+
+                
               )}
+
+              
 
               <div className="space-y-2">
                 <label htmlFor="email" className="block text-sm font-medium text-gray-200">

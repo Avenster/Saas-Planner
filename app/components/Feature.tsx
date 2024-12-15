@@ -40,7 +40,7 @@ export default function Features() {
               <span className="text-gray-400">ML Performance</span>
             </div>
             <div className="h-16 mb-4">
-              <ResponsiveContainer width="100%" height="100%">
+               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data}>
                   <Line 
                     type="monotone" 
@@ -74,7 +74,7 @@ export default function Features() {
 
           {/* Usage Analytics Card */}
           <div className="col-span-4 bg-black/40 p-8 rounded-3xl border border-white/10">
-            <div className="h-40">
+            <div className="h-20">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data}>
                   <Line 
@@ -86,7 +86,13 @@ export default function Features() {
                   />
                 </LineChart>
               </ResponsiveContainer>
+              
             </div>
+
+            <h3 className="text-2xl font-bold mb-2">Real-Time Insights</h3>
+            <p className="text-gray-400">
+            Gain actionable insights with live analytics and performance monitoring to optimize your machine learning models.
+            </p>
           </div>
 
           {/* Team Management Card */}
