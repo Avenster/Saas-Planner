@@ -4,13 +4,14 @@ const cors = require("cors");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const app = express();
+require("dotenv").config();
+// require("dotenv").config();
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// Add headers for Content Security Policy and font loading
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
@@ -20,12 +21,12 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   next();
 });
-
-const uri = "mongodb+srv://avenster:IGF9EONYxYXR5FIl@login-details.plgmf.mongodb.net/?retryWrites=true&w=majority&appName=login-details";
+const uri = process.env.MONGO_URL;
+const JWT_SECRET = process.env.JWT_SECRET;
 const client = new MongoClient(uri);
 let collection;
 
-const JWT_SECRET = 'aadeb42f91a814953fecccfae030312591ee01e7fc4873e01738b2c761bff2855f006016aac196d999f703b1523546a50e2756385ce9be30f5e0cc449ab25653';
+
 
 async function connectToMongo() {
   try {
@@ -73,8 +74,8 @@ app.get("/api/users", verifyToken, async (req, res) => {
 // Add new user
 app.post("/api/users", verifyToken, async (req, res) => {
   const { name, email, password } = req.body;
-  const orgName = req.query.orgName; // Get from query parameter
-  const planName = req.query.planName; // Get from query parameter
+  const orgName = req.query.orgName; 
+  const planName = req.query.planName; 
 
   try {
     // Check if required fields are present
@@ -157,7 +158,7 @@ app.put("/api/users/:id", verifyToken, async (req, res) => {
     const result = await db.collection("users_org").updateOne(
       { 
         _id: new ObjectId(id),
-        "Organisation Name": orgName // Ensure we only update users from this organization
+        "Organisation Name": orgName 
       },
       { $set: updateData }
     );
@@ -187,13 +188,13 @@ app.put("/api/users/:id", verifyToken, async (req, res) => {
 // Delete user
 app.delete("/api/users/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
-  const orgName = req.query.orgName; // Get organization name from query
+  const orgName = req.query.orgName;
 
   try {
     const db = client.db("login-deatils");
     const result = await db.collection("users_org").deleteOne({ 
       _id: new ObjectId(id),
-      "Organisation Name": orgName // Ensure we only delete users from this organization
+      "Organisation Name": orgName 
     });
 
     if (result.deletedCount === 0) {
@@ -321,15 +322,7 @@ function verifyToken(req, res, next) {
 }
 
 //////////////////////////////////// SUPER ADMIN ////////////////////////////////////////////////////////
-// Add this endpoint to your existing server code
 
-// Dashboard analytics endpoint
-// Add this endpoint to your existing server code
-
-// Dashboard analytics endpoint
-// Add this endpoint to your existing server code
-
-// Dashboard analytics endpoint
 app.get("/api/dashboard-analytics", async (req, res) => {
   try {
     const db = client.db("login-deatils");
@@ -430,8 +423,6 @@ app.get("/api/dashboard-analytics", async (req, res) => {
   }
 });
 
-// Organization and Transactions Summary endpoint
-// Organization, Transactions and Users Summary endpoint
 app.get("/api/organization-summary", async (req, res) => {
   try {
     const db = client.db("login-deatils");
@@ -569,30 +560,23 @@ app.post("/signup1", async (req, res) => {
 
   try {
     console.log("Received signup request:", { name, email });
-
-    // Check if all fields are provided
     if (!name || !email || !password) {
       return res.status(400).json({ status: "error", message: "All fields are required" });
     }
 
-    // Check if user already exists in users collection
     const existingUser = await collection.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ status: "error", message: "User already exists" });
     }
 
-    // Check if organization already exists
     const db = client.db("login-deatils");
     const orgCollection = db.collection("Organisation_Name");
     const existingOrg = await orgCollection.findOne({ "User Email": email });
     if (existingOrg) {
       return res.status(409).json({ status: "error", message: "Organization already exists with this email" });
     }
-
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert new user into the users collection
     const userResult = await collection.insertOne({
       name,
       email,
@@ -600,7 +584,6 @@ app.post("/signup1", async (req, res) => {
       role: "user"
     });
 
-    // Insert new organization into Organisation_Name collection
     const orgResult = await orgCollection.insertOne({
       "Organisation Name": name,
       "User Email": email,
@@ -611,14 +594,12 @@ app.post("/signup1", async (req, res) => {
     console.log("New user created with ID:", userResult.insertedId);
     console.log("New organization created with ID:", orgResult.insertedId);
 
-    // Generate JWT token
     const token = jwt.sign(
       { userId: userResult.insertedId, email },
       JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    // Respond with success
     res.status(201).json({
       status: "success",
       message: "User and organization created successfully",
@@ -662,14 +643,13 @@ app.post("/login1", async (req, res) => {
       const isPasswordValid = await bcrypt.compare(password, storedHash);
 
       if (isPasswordValid) {
-        // Get the appropriate name based on role
         let userName;
         if (role === 'admin') {
           userName = user["Organisation Name"];
         } else if (role === 'user') {
-          userName = user["Name"];  // Assuming this is the field name in users_org
+          userName = user["Name"];  
         } else {
-          userName = user["name"];     // For super admin
+          userName = user["name"];    
         }
 
         const token = jwt.sign(
@@ -723,7 +703,6 @@ app.get("/api/organization-details/:username", async (req, res) => {
     const { username } = req.params;
     const db = client.db("login-deatils");
 
-    // Get transaction details
     const transaction = await db.collection("Transactions")
       .findOne({ "Organisation Name": username });
 
@@ -734,7 +713,6 @@ app.get("/api/organization-details/:username", async (req, res) => {
       });
     }
 
-    // Calculate max users based on plan
     let max_user;
     switch (transaction["Plan Name"]) {
       case "Basic":
@@ -749,14 +727,11 @@ app.get("/api/organization-details/:username", async (req, res) => {
       default:
         max_user = 0;
     }
-
-    // Count current users
     const user_num = await db.collection("users_org")
       .countDocuments({ "Organisation Name": username });
 
-    // Combine transaction data with user metrics
     const responseData = {
-      ...transaction,  // Spread all transaction fields
+      ...transaction,  
       max_user,
       user_num
     };
@@ -776,7 +751,6 @@ app.get("/api/organization-details/:username", async (req, res) => {
   }
 });
 
-// Add this endpoint to your server code
 app.get("/api/payment-history/:orgName", async (req, res) => {
   const { orgName } = req.params;
 
@@ -792,7 +766,7 @@ app.get("/api/payment-history/:orgName", async (req, res) => {
         "Date": 1,
         "Payment Status": 1
       })
-      .sort({ Date: -1 }) // Sort by date in descending order
+      .sort({ Date: -1 }) 
       .toArray();
 
     const formattedPayments = payments.map(payment => ({
@@ -818,8 +792,6 @@ app.get("/api/payment-history/:orgName", async (req, res) => {
 });
 //////////////////////////////////// ORGANISATION ADMIN ////////////////////////////////////////////////////////
 
-//////////////////////////////////// ORGANISATION USER ////////////////////////////////////////////////////////
-// Dashboard data endpoint for user
 app.get("/api/user-dashboard/:userName", async (req, res) => {
   try {
     const { userName } = req.params;
@@ -840,7 +812,6 @@ app.get("/api/user-dashboard/:userName", async (req, res) => {
 
     const orgName = userOrg["Organisation Name"];
 
-    // Get transaction details for the organization
     const transaction = await db.collection("Transactions").findOne(
       { "Organisation Name": orgName }
     );
@@ -851,13 +822,9 @@ app.get("/api/user-dashboard/:userName", async (req, res) => {
         message: "Transaction details not found"
       });
     }
-
-    // Count users in the organization
     const userCount = await db.collection("users_org").countDocuments({
       "Organisation Name": orgName
     });
-
-    // Combine all data
     const dashboardData = {
       organizationName: transaction["Organisation Name"],
       planName: transaction["Plan Name"],
@@ -888,7 +855,6 @@ app.get("/api/order-history/:userName", async (req, res) => {
     const { userName } = req.params;
     const db = client.db("login-deatils");
 
-    // First find the organization name for the user
     const userOrg = await db.collection("users_org").findOne(
       { "Name": userName },
       { projection: { "Organisation Name": 1 } }

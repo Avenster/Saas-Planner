@@ -5,6 +5,9 @@ import { json } from "@remix-run/node";
 import { Settings, Home, FileText, BarChart3, CreditCard, Files, 
          BookOpen, HelpCircle, Menu, Search, Moon, ClipboardList, LogOut } from 'lucide-react';
 
+
+
+
 interface MenuItem {
   icon: JSX.Element;
   label: string;
@@ -46,7 +49,7 @@ export default function Dashboard() {
   const handlebutton = ()=>{
     navigate('/pricing');
   }
-  
+ 
   
   
 
