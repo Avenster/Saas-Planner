@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const app = express();
 require("dotenv").config();
-// require("dotenv").config();
 
 // Middleware
 app.use(express.json());
@@ -323,6 +322,7 @@ function verifyToken(req, res, next) {
 
 //////////////////////////////////// SUPER ADMIN ////////////////////////////////////////////////////////
 
+// Dashboard analytics endpoint
 app.get("/api/dashboard-analytics", async (req, res) => {
   try {
     const db = client.db("login-deatils");
@@ -423,6 +423,8 @@ app.get("/api/dashboard-analytics", async (req, res) => {
   }
 });
 
+// Organization and Transactions Summary endpoint
+// Organization, Transactions and Users Summary endpoint
 app.get("/api/organization-summary", async (req, res) => {
   try {
     const db = client.db("login-deatils");
@@ -560,23 +562,30 @@ app.post("/signup1", async (req, res) => {
 
   try {
     console.log("Received signup request:", { name, email });
+
+    // Check if all fields are provided
     if (!name || !email || !password) {
       return res.status(400).json({ status: "error", message: "All fields are required" });
     }
 
+    // Check if user already exists in users collection
     const existingUser = await collection.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ status: "error", message: "User already exists" });
     }
 
+    // Check if organization already exists
     const db = client.db("login-deatils");
     const orgCollection = db.collection("Organisation_Name");
     const existingOrg = await orgCollection.findOne({ "User Email": email });
     if (existingOrg) {
       return res.status(409).json({ status: "error", message: "Organization already exists with this email" });
     }
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Insert new user into the users collection
     const userResult = await collection.insertOne({
       name,
       email,
@@ -584,6 +593,7 @@ app.post("/signup1", async (req, res) => {
       role: "user"
     });
 
+    // Insert new organization into Organisation_Name collection
     const orgResult = await orgCollection.insertOne({
       "Organisation Name": name,
       "User Email": email,
@@ -594,12 +604,14 @@ app.post("/signup1", async (req, res) => {
     console.log("New user created with ID:", userResult.insertedId);
     console.log("New organization created with ID:", orgResult.insertedId);
 
+    // Generate JWT token
     const token = jwt.sign(
       { userId: userResult.insertedId, email },
       JWT_SECRET,
       { expiresIn: '1h' }
     );
 
+    // Respond with success
     res.status(201).json({
       status: "success",
       message: "User and organization created successfully",
@@ -643,13 +655,14 @@ app.post("/login1", async (req, res) => {
       const isPasswordValid = await bcrypt.compare(password, storedHash);
 
       if (isPasswordValid) {
+        // Get the appropriate name based on role
         let userName;
         if (role === 'admin') {
           userName = user["Organisation Name"];
         } else if (role === 'user') {
-          userName = user["Name"];  
+          userName = user["Name"];  // Assuming this is the field name in users_org
         } else {
-          userName = user["name"];    
+          userName = user["name"];     // For super admin
         }
 
         const token = jwt.sign(
@@ -692,6 +705,82 @@ app.post("/login1", async (req, res) => {
   }
 });
 
+app.post('/api/plans', async (req, res) => {
+  try {
+    const planData = req.body;
+    const filePath = '../Files/plans.json';
+    
+    // Create plans.json if it doesn't exist
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, JSON.stringify({ plans: [] }, null, 2));
+    }
+
+    // Read existing data
+    let existingData = { plans: [] };
+    try {
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      existingData = JSON.parse(fileContent);
+    } catch (err) {
+      console.error('Error reading file:', err);
+      // If there's an error reading, start with empty plans array
+      existingData = { plans: [] };
+    }
+
+    // Validate incoming data
+    if (!planData.name || !planData.price || !planData.subcontent || !planData.users || !planData.features) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Missing required fields' 
+      });
+    }
+
+    // Add new plan
+    const newPlan = {
+      name: planData.name.toUpperCase(),
+      price: parseFloat(planData.price) || 0,
+      subcontent: planData.subcontent,
+      users: planData.users,
+      features: planData.features.filter(feature => feature.trim() !== '')
+    };
+
+    existingData.plans.push(newPlan);
+
+    // Write back to file
+    fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
+    
+    res.json({ 
+      success: true, 
+      message: 'Plan added successfully',
+      plan: newPlan 
+    });
+  } catch (error) {
+    console.error('Server error saving plan:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to save plan' 
+    });
+  }
+});
+
+app.get('/api/plans', (req, res) => {
+  try {
+    const filePath = path.join(__dirname, 'Files', 'plans.json');
+    
+    if (!fs.existsSync(filePath)) {
+      return res.json({ plans: [] });
+    }
+
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    res.json(JSON.parse(fileContent));
+  } catch (error) {
+    console.error('Error reading plans:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to read plans' 
+    });
+  }
+});
+
 //////////////////////////////////// SUPER ADMIN ////////////////////////////////////////////////////////
 
 //////////////////////////////////// ORGANISATION ADMIN ////////////////////////////////////////////////////////
@@ -703,6 +792,7 @@ app.get("/api/organization-details/:username", async (req, res) => {
     const { username } = req.params;
     const db = client.db("login-deatils");
 
+    // Get transaction details
     const transaction = await db.collection("Transactions")
       .findOne({ "Organisation Name": username });
 
@@ -713,13 +803,14 @@ app.get("/api/organization-details/:username", async (req, res) => {
       });
     }
 
+    // Calculate max users based on plan
     let max_user;
     switch (transaction["Plan Name"]) {
       case "Basic":
-        max_user = 1;
+        max_user = "1";
         break;
       case "Standard":
-        max_user = 5;
+        max_user = "5";
         break;
       case "Plus":
         max_user = "10+";
@@ -727,11 +818,14 @@ app.get("/api/organization-details/:username", async (req, res) => {
       default:
         max_user = 0;
     }
+
+    // Count current users
     const user_num = await db.collection("users_org")
       .countDocuments({ "Organisation Name": username });
 
+    // Combine transaction data with user metrics
     const responseData = {
-      ...transaction,  
+      ...transaction,  // Spread all transaction fields
       max_user,
       user_num
     };
@@ -751,6 +845,7 @@ app.get("/api/organization-details/:username", async (req, res) => {
   }
 });
 
+// Add this endpoint to your server code
 app.get("/api/payment-history/:orgName", async (req, res) => {
   const { orgName } = req.params;
 
@@ -766,7 +861,7 @@ app.get("/api/payment-history/:orgName", async (req, res) => {
         "Date": 1,
         "Payment Status": 1
       })
-      .sort({ Date: -1 }) 
+      .sort({ Date: -1 }) // Sort by date in descending order
       .toArray();
 
     const formattedPayments = payments.map(payment => ({
@@ -792,6 +887,8 @@ app.get("/api/payment-history/:orgName", async (req, res) => {
 });
 //////////////////////////////////// ORGANISATION ADMIN ////////////////////////////////////////////////////////
 
+//////////////////////////////////// ORGANISATION USER ////////////////////////////////////////////////////////
+// Dashboard data endpoint for user
 app.get("/api/user-dashboard/:userName", async (req, res) => {
   try {
     const { userName } = req.params;
@@ -812,6 +909,7 @@ app.get("/api/user-dashboard/:userName", async (req, res) => {
 
     const orgName = userOrg["Organisation Name"];
 
+    // Get transaction details for the organization
     const transaction = await db.collection("Transactions").findOne(
       { "Organisation Name": orgName }
     );
@@ -822,9 +920,13 @@ app.get("/api/user-dashboard/:userName", async (req, res) => {
         message: "Transaction details not found"
       });
     }
+
+    // Count users in the organization
     const userCount = await db.collection("users_org").countDocuments({
       "Organisation Name": orgName
     });
+
+    // Combine all data
     const dashboardData = {
       organizationName: transaction["Organisation Name"],
       planName: transaction["Plan Name"],
@@ -855,6 +957,7 @@ app.get("/api/order-history/:userName", async (req, res) => {
     const { userName } = req.params;
     const db = client.db("login-deatils");
 
+    // First find the organization name for the user
     const userOrg = await db.collection("users_org").findOne(
       { "Name": userName },
       { projection: { "Organisation Name": 1 } }
@@ -924,9 +1027,6 @@ app.get("/api/user-profile/:userName", async (req, res) => {
 
 
 //////////////////////////////////// ORGANISATION USER ////////////////////////////////////////////////////////
-
-
-
 
 const PORT = 8000;
 app.listen(PORT, () => {

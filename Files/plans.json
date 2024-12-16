@@ -1,38 +1,40 @@
 {
-    "plans": [
-      {
-        "name": "BASIC",
-        "price": 0,
-        "duration": "14 Days Free Trial",
-        "features": [
-          "Limited to 1 user",
-          "Basic analytics and reporting",
-          "Access to standard templates",
-          "Limited to 14 days"
-        ]
-      },
-      {
-        "name": "STANDARD",
-        "price": 4999,
-        "users": "Up to 5 users (₹24995 yearly)",
-        "features": [
-          "Up to 5 team members",
-          "Advanced analytics and reporting",
-          "Priority customer support",
-          "Custom templates"
-        ]
-      },
-      {
-        "name": "PLUS",
-        "price": 3999,
-        "users": "Minimum 10 users (₹39990 yearly)",
-        "features": [
-          "10+ team members",
-          "Real-time analytics",
-          "24/7 dedicated support",
-          "Custom integrations"
-        ]
-      }
-    ]
-  }
-  
+  "plans": [
+    {
+      "name": "BASIC",
+      "price": 0,
+      "subcontent": "14 Days Free Trial",
+      "users":"1",
+      "features": [
+        "Limited to 1 user",
+        "Basic analytics and reporting",
+        "Access to standard templates",
+        "Limited to 14 days"
+      ]
+    },
+    {
+      "name": "STANDARD",
+      "price": 4999,
+      "subcontent": "Up to 5 users (₹24995 yearly)",
+      "users":"5",
+      "features": [
+        "Up to 5 team members",
+        "Advanced analytics and reporting",
+        "Priority customer support",
+        "Custom templates"
+      ]
+    },
+    {
+      "name": "PLUS",
+      "price": 3999,
+      "subcontent":"Minimum 10 users (₹39990 yearly)",
+      "users": "10+",
+      "features": [
+        "10+ team members",
+        "Real-time analytics",
+        "24/7 dedicated support",
+        "Custom integrations"
+      ]
+    }
+  ]
+}

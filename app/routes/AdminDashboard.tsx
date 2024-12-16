@@ -31,6 +31,7 @@ import {
   Mail,
   Receipt,
   Gauge,
+  Check,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
@@ -432,6 +433,7 @@ const AdminDashboard = () => {
 
   const [supportForm, setSupportForm] = useState({ subject: "", message: "" });
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showLimitAlert, setShowLimitAlert] = useState(false);
 
   const handleSupportSubmit = (e) => {
     e.preventDefault();
@@ -448,224 +450,289 @@ const AdminDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "users":
-        return (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-m font-bold text-white">User Management</h2>
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-m font-bold text-white">User Management</h2>
+        <Button
+          onClick={() => {
+            if (orgDetails && orgDetails.user_num >= parseInt(orgDetails.max_user)) {
+              setShowLimitAlert(true);
+            } else {
+              setIsAddUserOpen(true);
+            }
+          }}
+          className="bg-indigo-500 hover:bg-blue-600 transition-colors"
+        >
+          <UserPlus className="mr-2 h-4 w-4" />
+          Add User
+        </Button>
+      </div>
+
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Last Login</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user._id} className="hover:bg-black-800/50">
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.role}</TableCell>
+                <TableCell>{user.lastLogin}</TableCell>
+                <TableCell>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs ${
+                      user.status === "Active"
+                        ? "bg-green-500/20 text-green-500"
+                        : "bg-red-500/20 text-red-500"
+                    }`}
+                  >
+                    {user.status}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEditClick(user)}
+                    className="mr-2 hover:bg-gray-700"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteUser(user._id)}
+                    className="text-red-500 hover:text-red-600 hover:bg-red-500/20"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+
+      {/* User Limit Alert Dialog */}
+      <Dialog open={showLimitAlert} onOpenChange={setShowLimitAlert}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl">User Limit Reached</DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-4"
+              onClick={() => setShowLimitAlert(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <p className="text-gray-400">
+              You have reached your maximum user limit ({orgDetails?.max_user} users) for your current plan.
+            </p>
+            
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+              <h4 className="text-blue-400 font-medium mb-2">Upgrade your plan to:</h4>
+              <ul className="text-gray-300 space-y-2">
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-blue-400" />
+                  Add more users
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-blue-400" />
+                  Access additional features
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-blue-400" />
+                  Get priority support
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <DialogFooter className="flex space-x-2">
+            <Button
+              variant="ghost"
+              onClick={() => setShowLimitAlert(false)}
+              className="bg-white/10 text-white hover:bg-white/20"
+            >
+              Cancel
+            </Button>
+            <Button 
+              className="bg-blue-500 text-white hover:bg-blue-600"
+              onClick={() => {
+                setShowLimitAlert(false);
+                setActiveTab('plan');
+              }}
+            >
+              View Plans
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add User Dialog */}
+      <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New User</DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-4"
+              onClick={handleCloseDialogs}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogHeader>
+          <form onSubmit={handleAddUser}>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  required
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            <DialogFooter className="mt-6">
               <Button
-                onClick={() => setIsAddUserOpen(true)}
-                className="bg-indigo-500 hover:bg-blue-600 transition-colors"
+                type="button"
+                variant="ghost"
+                onClick={handleCloseDialogs}
               >
-                <UserPlus className="mr-2 h-4 w-4" />
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600"
+              >
                 Add User
               </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit User Dialog */}
+      <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-4"
+              onClick={handleCloseDialogs}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogHeader>
+          <form onSubmit={handleUpdateUser}>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-name">Name</Label>
+                <Input
+                  id="edit-name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-email">Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-role">Role</Label>
+                <Select
+                  id="edit-role"
+                  value={formData.role}
+                  onChange={(e) =>
+                    setFormData({ ...formData, role: e.target.value })
+                  }
+                  className="mt-1"
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </Select>
+              </div>
             </div>
-
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Last Login</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user._id} className="hover:bg-black-800/50">
-                      <TableCell>{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.role}</TableCell>
-                      <TableCell>{user.lastLogin}</TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs ${
-                            user.status === "Active"
-                              ? "bg-green-500/20 text-green-500"
-                              : "bg-red-500/20 text-red-500"
-                          }`}
-                        >
-                          {user.status}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditClick(user)}
-                          className="mr-2 hover:bg-gray-700"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteUser(user._id)}
-                          className="text-red-500 hover:text-red-600 hover:bg-red-500/20"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-
-            {/* Add User Dialog */}
-            <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Add New User</DialogTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-4 top-4"
-                    onClick={handleCloseDialogs}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </DialogHeader>
-                <form onSubmit={handleAddUser}>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Name</Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                        required
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                        required
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="password">Password</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) =>
-                          setFormData({ ...formData, password: e.target.value })
-                        }
-                        required
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter className="mt-6">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={handleCloseDialogs}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="bg-blue-500 hover:bg-blue-600"
-                    >
-                      Add User
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-
-            {/* Edit User Dialog */}
-            <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Edit User</DialogTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-4 top-4"
-                    onClick={handleCloseDialogs}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </DialogHeader>
-                <form onSubmit={handleUpdateUser}>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="edit-name">Name</Label>
-                      <Input
-                        id="edit-name"
-                        value={formData.name}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                        required
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="edit-email">Email</Label>
-                      <Input
-                        id="edit-email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                        required
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="edit-role">Role</Label>
-                      <Select
-                        id="edit-role"
-                        value={formData.role}
-                        onChange={(e) =>
-                          setFormData({ ...formData, role: e.target.value })
-                        }
-                        className="mt-1"
-                      >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                      </Select>
-                    </div>
-                  </div>
-                  <DialogFooter className="mt-6">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={handleCloseDialogs}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="bg-blue-500 hover:bg-blue-600"
-                    >
-                      Update User
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
-        );
-
+            <DialogFooter className="mt-6">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleCloseDialogs}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600"
+              >
+                Update User
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
       case "plan":
         return (
           <div className="space-y-4">
