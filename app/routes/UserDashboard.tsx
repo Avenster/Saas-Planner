@@ -43,6 +43,7 @@ import {
   TableRow,
 } from "../components/ui/table";
 import plansData from "../../Files/plans.json";
+import { useNavigate } from "@remix-run/react";
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -103,6 +104,18 @@ const UserDashboard = () => {
       { icon: <Clock size={18} />, label: "Order History", tab: "orders" },
       { icon: <User size={18} />, label: "Profile", tab: "profile" },
     ],
+  };
+  const navigate = useNavigate();
+  const removeLocalStorage = (key: string): void => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(key);
+    }
+  };
+
+  const handleLogout = () => {
+    removeLocalStorage("token");
+    removeLocalStorage("userName");
+    navigate("/Login");
   };
 
   const [dashboardData, setDashboardData] = useState(null);
@@ -1006,8 +1019,8 @@ const UserDashboard = () => {
       {/* Sidebar */}
       <div className="w-72 border-r border-gray-800 flex flex-col">
         {/* User Info */}
-        <div className="ml-8 p-4 border-b border-gray-800">
-          <button className="flex items-center gap-2 text-white">
+        <div className=" h-[4.5rem] p-4 flex items-center border-b border-gray-800">
+          <button className="flex  items-center gap-2 text-white">
             <div className="w-2 h-2 rounded-full bg-blue-500"></div>
             {userName}
           </button>
@@ -1049,7 +1062,7 @@ const UserDashboard = () => {
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="border-b border-gray-800 p-4 flex items-center justify-between">
+        <header className="border-b h-[4.5rem] border-gray-800 p-4 flex items-center justify-between">
           <div className="flex-1 max-w-xl">
             <div className="relative">
               <Search
@@ -1067,7 +1080,17 @@ const UserDashboard = () => {
             <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
               <Moon size={18} />
             </button>
-            <div className="w-8 h-8 rounded-full bg-gray-700"></div>
+            <button
+              onClick={handleLogout}
+              className="flex justify-center items-center w-[8rem] h-8 bg-white text-black rounded-full"
+            >
+              {" "}
+              Logout
+            </button>
+            <div className="w-8 h-8 overflow-hidden border border-white/10 rounded-full bg-gray-700">
+              {" "}
+              <img src="/avatar-svgrepo-com.svg" alt="" />
+            </div>
           </div>
         </header>
 

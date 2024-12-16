@@ -3,20 +3,41 @@ import { useState, useEffect } from "react";
 import FAQSection from "~/components/FAQSection";
 import PricingTable from "~/components/PricingTable";
 import Layout from "~/components/Layout";
-
 import { loadStripe } from "@stripe/stripe-js";
-
 
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState("yearly");
-  const [user, setUser] = useState(null);
-  const navigate = useNavigate();
-  
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const navigate = useNavigate();
+
+  // Check authentication status on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+
+    // Check if user was redirected from login with a selected plan
+    const savedPlan = sessionStorage.getItem("selectedPlan");
+    if (savedPlan && token) {
+      const planDetails = JSON.parse(savedPlan);
+      makepayment(planDetails.planType);
+      sessionStorage.removeItem("selectedPlan");
+    }
+  }, []);
 
   const makepayment = async (planType) => {
+    if (!isAuthenticated) {
+      // Save plan details before redirecting to login
+      sessionStorage.setItem(
+        "selectedPlan",
+        JSON.stringify({ planType, billingCycle })
+      );
+      navigate("/login");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -35,6 +56,7 @@ export default function PricingPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}` // Add token for authentication
           },
           body: JSON.stringify({
             planType,
@@ -51,7 +73,6 @@ export default function PricingPage() {
       }
 
       const { id: sessionId } = await response.json();
-
       const { error } = await stripe.redirectToCheckout({ sessionId });
 
       if (error) {
@@ -65,77 +86,20 @@ export default function PricingPage() {
     }
   };
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  const checkAuthStatus = async () => {
-    try {
-      const response = await fetch("/api/auth/check");
-      const data = await response.json();
-
-      if (data.authenticated) {
-        setUser(data.user);
-      }
-    } catch (error) {
-      console.error("Auth check failed:", error);
-    }
-  };
-
-  const handleSubscription = async (planType) => {
-    if (!user) {
-      sessionStorage.setItem("redirectAfterLogin", "/pricing");
-      navigate("/login");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const lookup_key = plans[planType][billingCycle].lookup_key;
-
-      // Create checkout session
-      const response = await fetch(
-        "http://localhost:4242/create-checkout-session",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            lookup_key,
-            userId: user.id,
-          }),
-        }
-      );
-
-      if (response.status === 303) {
-        const data = await response.json();
-        window.location.href = data.url;
-      } else {
-        throw new Error("Failed to create checkout session");
-      }
-    } catch (error) {
-      setError("Payment initiation failed. Please try again.");
-      console.error("Payment error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  // Modified button components to use the new handler
   const SubscribeButton = ({ planType, children }) => (
     <button
-      onClick={() => makepayment(planType)} // Updated onClick handler
+      onClick={() => makepayment(planType)}
+      disabled={isLoading}
       className={`w-full py-3 px-4 rounded-[2rem] ${
         planType === "standard"
           ? "bg-white text-black hover:bg-gray-100"
           : "bg-black border border-white/10 hover:bg-gray-700"
-      } transition-colors`}
+      } transition-colors ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
     >
-      {children}
+      {isLoading ? "Processing..." : children}
     </button>
   );
+
 
   // const SubscribeButton = ({ planType, children }) => (
   //   <button

@@ -89,9 +89,9 @@ export default function Header() {
           {isLoggedIn ? (
             <button
               onClick={handleLogout}
-              className="group relative inline-flex items-center gap-2 px-8 py-2.5 bg-gradient-to-r from-white-600 to-white-400 rounded-full overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:from-red-500 hover:to-red-300"
+              className="group relative inline-flex items-center gap-2 px-8 py-2.5 bg-gradient-to-r from-white to-gray-200 text-black rounded-full overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:from-gray-100 hover:to-white"
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-red-600/40 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+              <span className="absolute inset-0 bg-gradient-to-r from-white/40 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
               <span className="relative flex items-center gap-2">
                 <span className="font-medium tracking-wide">Logout</span>
                 <svg

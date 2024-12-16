@@ -78,12 +78,19 @@ export default function Login() {
         localStorage.setItem("userRole", role);
 
         setTimeout(() => {
-          if (role === "super admin") {
-            navigate("/SADashboard");
-          } else if (role === "admin") {
-            navigate("/AdminDashboard");
+          // Check if there's a saved plan selection
+          const savedPlan = sessionStorage.getItem("selectedPlan");
+          if (savedPlan) {
+            navigate("/pricing"); // This will trigger the payment flow
           } else {
-            navigate("/UserDashboard");
+            // Your existing navigation logic
+            if (role === "super admin") {
+              navigate("/SADashboard");
+            } else if (role === "admin") {
+              navigate("/AdminDashboard");
+            } else {
+              navigate("/UserDashboard");
+            }
           }
         }, 2000);
       } else {
