@@ -25,7 +25,7 @@ const PLANS = {
 
 app.post('/create-checkout-session', async (req, res) => {
   try {
-    const { planType, billingCycle } = req.body;
+    const { planType, billingCycle, success_url, cancel_url } = req.body;
     
     if (!planType || !billingCycle) {
       return res.status(400).json({ error: 'Missing required parameters' });
@@ -63,8 +63,8 @@ app.post('/create-checkout-session', async (req, res) => {
         },
       ],
       mode: 'subscription',
-      success_url: `${FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${FRONTEND_URL}/pricing`,
+      success_url: success_url,
+      cancel_url: cancel_url,
     });
 
     res.json({ id: session.id });

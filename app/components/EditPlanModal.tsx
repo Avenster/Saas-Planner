@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,80 +12,55 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Trash2, Plus } from "lucide-react";
 
-const AddPlanModal = ({ open, onClose, onSubmit }) => {
-  const [planData, setPlanData] = useState({
+const EditPlanModal = ({ open, onClose, onSubmit, plan }) => {
+  const [formData, setFormData] = useState({
     name: '',
     price: '',
     subcontent: '',
-    users: '',
     features: ['']
   });
 
+  useEffect(() => {
+    if (plan) {
+      setFormData({
+        name: plan.name,
+        price: plan.price,
+        subcontent: plan.subcontent,
+        features: plan.features
+      });
+    }
+  }, [plan]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData);
+    onClose();
+  };
+
   const handleFeatureChange = (index, value) => {
-    const newFeatures = [...planData.features];
+    const newFeatures = [...formData.features];
     newFeatures[index] = value;
-    setPlanData({ ...planData, features: newFeatures });
+    setFormData({ ...formData, features: newFeatures });
   };
 
   const addFeature = () => {
-    setPlanData({ ...planData, features: [...planData.features, ''] });
+    setFormData({ ...formData, features: [...formData.features, ''] });
   };
 
   const removeFeature = (index) => {
-    const newFeatures = planData.features.filter((_, i) => i !== index);
-    setPlanData({ ...planData, features: newFeatures });
+    const newFeatures = formData.features.filter((_, i) => i !== index);
+    setFormData({ ...formData, features: newFeatures });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      const response = await fetch('http://localhost:8000/api/plans', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: planData.name.toUpperCase(),
-          price: parseFloat(planData.price) || 0,
-          subcontent: planData.subcontent,
-          users: planData.users,
-          features: planData.features.filter(feature => feature.trim() !== '')
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save plan');
-      }
-
-      const result = await response.json();
-      if (result.success) {
-        onSubmit(planData);
-        setPlanData({
-          name: '',
-          price: '',
-          subcontent: '',
-          users: '',
-          features: ['']
-        });
-        onClose();
-        alert('Plan added successfully!');
-      } else {
-        throw new Error(result.error || 'Failed to save plan');
-      }
-    } catch (error) {
-      console.error('Error saving plan:', error);
-      alert('Failed to save plan. Please try again.');
-    }
-  };
+  if (!open) return null;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] bg-black border border-white/20">
         <DialogHeader className="space-y-3">
-          <DialogTitle className="text-2xl text-white">Add New Plan</DialogTitle>
+          <DialogTitle className="text-2xl text-white">Edit Plan</DialogTitle>
           <DialogDescription className="text-gray-400 text-sm">
-            Fill in the details for your new plan below.
+            Make changes to the plan details below.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
@@ -97,10 +72,9 @@ const AddPlanModal = ({ open, onClose, onSubmit }) => {
               </Label>
               <Input
                 id="name"
-                value={planData.name}
-                onChange={(e) => setPlanData({ ...planData, name: e.target.value })}
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="col-span-3 bg-black border-white/20 text-white h-11 focus:border-white/40 focus:ring-0"
-                required
               />
             </div>
 
@@ -112,10 +86,9 @@ const AddPlanModal = ({ open, onClose, onSubmit }) => {
               <Input
                 id="price"
                 type="number"
-                value={planData.price}
-                onChange={(e) => setPlanData({ ...planData, price: e.target.value })}
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
                 className="col-span-3 bg-black border-white/20 text-white h-11 focus:border-white/40 focus:ring-0"
-                required
               />
             </div>
 
@@ -126,25 +99,9 @@ const AddPlanModal = ({ open, onClose, onSubmit }) => {
               </Label>
               <Input
                 id="subcontent"
-                value={planData.subcontent}
-                onChange={(e) => setPlanData({ ...planData, subcontent: e.target.value })}
+                value={formData.subcontent}
+                onChange={(e) => setFormData({ ...formData, subcontent: e.target.value })}
                 className="col-span-3 bg-black border-white/20 text-white h-11 focus:border-white/40 focus:ring-0"
-                required
-              />
-            </div>
-
-            {/* Users Field */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="users" className="text-right text-white">
-                Users
-              </Label>
-              <Input
-                id="users"
-                value={planData.users}
-                onChange={(e) => setPlanData({ ...planData, users: e.target.value })}
-                className="col-span-3 bg-black border-white/20 text-white h-11 focus:border-white/40 focus:ring-0"
-                placeholder="Number of Users"
-                required
               />
             </div>
 
@@ -154,16 +111,15 @@ const AddPlanModal = ({ open, onClose, onSubmit }) => {
                 Features
               </Label>
               <div className="col-span-3 space-y-3">
-                {planData.features.map((feature, index) => (
+                {formData.features.map((feature, index) => (
                   <div key={index} className="flex gap-2">
                     <Input
                       value={feature}
                       onChange={(e) => handleFeatureChange(index, e.target.value)}
                       placeholder={`Feature ${index + 1}`}
                       className="flex-1 bg-black border-white/20 text-white h-11 focus:border-white/40 focus:ring-0"
-                      required={index === 0}
                     />
-                    {planData.features.length > 1 && (
+                    {formData.features.length > 1 && (
                       <Button
                         type="button"
                         variant="outline"
@@ -193,7 +149,7 @@ const AddPlanModal = ({ open, onClose, onSubmit }) => {
               type="submit"
               className="w-full sm:w-auto bg-white hover:bg-gray-100 text-black h-11 px-8"
             >
-              Add Plan
+              Save Changes
             </Button>
           </DialogFooter>
         </form>
@@ -202,4 +158,4 @@ const AddPlanModal = ({ open, onClose, onSubmit }) => {
   );
 };
 
-export default AddPlanModal;
+export default EditPlanModal;
