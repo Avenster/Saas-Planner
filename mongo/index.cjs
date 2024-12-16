@@ -5,6 +5,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const app = express();
 require("dotenv").config();
+const fs = require('fs');
+const path = require('path');
+
+// Ensure the Files directory exists
+const filesDir = path.join(__dirname, 'Files');
+if (!fs.existsSync(filesDir)) {
+  fs.mkdirSync(filesDir);
+}
 
 // Middleware
 app.use(express.json());

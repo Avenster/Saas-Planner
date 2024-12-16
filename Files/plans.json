@@ -4,7 +4,7 @@
       "name": "BASIC",
       "price": 0,
       "subcontent": "14 Days Free Trial",
-      "users":"1",
+      "users": "1",
       "features": [
         "Limited to 1 user",
         "Basic analytics and reporting",
@@ -16,7 +16,7 @@
       "name": "STANDARD",
       "price": 4999,
       "subcontent": "Up to 5 users (₹24995 yearly)",
-      "users":"5",
+      "users": "5",
       "features": [
         "Up to 5 team members",
         "Advanced analytics and reporting",
@@ -27,13 +27,22 @@
     {
       "name": "PLUS",
       "price": 3999,
-      "subcontent":"Minimum 10 users (₹39990 yearly)",
+      "subcontent": "Minimum 10 users (₹39990 yearly)",
       "users": "10+",
       "features": [
         "10+ team members",
         "Real-time analytics",
         "24/7 dedicated support",
         "Custom integrations"
+      ]
+    },
+    {
+      "name": "FEFE",
+      "price": 121,
+      "subcontent": "vdv",
+      "users": "12",
+      "features": [
+        "fdef"
       ]
     }
   ]
