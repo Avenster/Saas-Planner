@@ -6,6 +6,7 @@ import Layout from "~/components/Layout";
 
 import { loadStripe } from "@stripe/stripe-js";
 
+
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState("yearly");
   const [user, setUser] = useState(null);
@@ -74,45 +75,7 @@ export default function PricingPage() {
     }
   };
 
-  const handleSubscription = async (planType) => {
-    if (!user) {
-      sessionStorage.setItem("redirectAfterLogin", "/pricing");
-      navigate("/login");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const lookup_key = plans[planType][billingCycle].lookup_key;
-
-      // Create checkout session
-      const response = await fetch("http://localhost:4242/create-checkout-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          lookup_key,
-          userId: user.id,
-        }),
-      });
-
-      if (response.status === 303) {
-        const data = await response.json();
-        window.location.href = data.url;
-      } else {
-        throw new Error("Failed to create checkout session");
-      }
-    } catch (error) {
-      setError("Payment initiation failed. Please try again.");
-      console.error("Payment error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+ 
   // Modified button components to use the new handler
   const SubscribeButton = ({ planType, children }) => (
     <button
@@ -301,6 +264,7 @@ export default function PricingPage() {
             </SubscribeButton>
           </div>
         </div>
+        <PricingTable/>
 
         {/* FAQ Section */}
         <FAQSection />
