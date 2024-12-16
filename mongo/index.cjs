@@ -20,6 +20,7 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   next();
 });
+
 const uri = process.env.MONGO_URL;
 const JWT_SECRET = process.env.JWT_SECRET;
 const client = new MongoClient(uri);
@@ -585,6 +586,21 @@ app.post("/signup1", async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Calculate current date and renewal date
+    const currentDate = new Date();
+    const renewalDate = new Date(currentDate);
+    renewalDate.setDate(renewalDate.getDate() + 14);
+
+    // Create transaction record data
+    const transactionData = {
+      "Organisation Name": name,
+      "Plan Name": "Basic",
+      "Amount": 0,
+      "Date": currentDate,
+      "Renewal Date": renewalDate,
+      "Payment Status": true
+    };
+
     // Insert new user into the users collection
     const userResult = await collection.insertOne({
       name,
@@ -598,11 +614,21 @@ app.post("/signup1", async (req, res) => {
       "Organisation Name": name,
       "User Email": email,
       "Password": hashedPassword,
-      "createdAt": new Date()
+      "createdAt": currentDate
     });
+
+    // Insert into Transactions collection
+    const transactionsCollection = db.collection("Transactions");
+    const transactionResult = await transactionsCollection.insertOne(transactionData);
+
+    // Insert into History collection
+    const historyCollection = db.collection("History");
+    const historyResult = await historyCollection.insertOne(transactionData);
 
     console.log("New user created with ID:", userResult.insertedId);
     console.log("New organization created with ID:", orgResult.insertedId);
+    console.log("Transaction record created with ID:", transactionResult.insertedId);
+    console.log("History record created with ID:", historyResult.insertedId);
 
     // Generate JWT token
     const token = jwt.sign(

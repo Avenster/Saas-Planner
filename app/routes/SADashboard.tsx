@@ -40,6 +40,7 @@ import {
 import AdminModal from "~/components/AdminModal";
 import AddPlanModal from "~/components/AddPlanModal";
 import plansData from "../../Files/plans.json";
+import EditPlanModal from "~/components/EditPlanModal";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -47,7 +48,7 @@ const Dashboard = () => {
   const [organizationData, setOrganizationData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-  
+
   const handleLogout = () => {
     removeLocalStorage("token");
     removeLocalStorage("userName");
@@ -131,43 +132,24 @@ const Dashboard = () => {
     }
   }, [activeTab]);
 
-  // Sample data - In real app, this would come from your backend
-  // const plans = [
-  //   { id: 1, name: 'Basic', price: 'Free for 14 Days', maxUsers: 1, activeSubscriptions: 45 },
-  //   { id: 2, name: 'Standard', price: '₹4,999/year', maxUsers: 5, activeSubscriptions: 28 },
-  //   { id: 3, name: 'Plus', price: '₹3,999/year', minUsers: 10, activeSubscriptions: 12 }
-  // ];
-
-  // const organizations = [
-  //   { id: 1, name: 'Acme Corp', plan: 'Standard', users: 4, status: 'Active', renewalDate: '2024-12-31' },
-  //   { id: 2, name: 'TechStart', plan: 'Plus', users: 12, status: 'Active', renewalDate: '2025-01-15' },
-  //   { id: 3, name: 'Dev Labs', plan: 'Basic', users: 1, status: 'Trial', renewalDate: '2024-12-22' }
-  // ];
-
-  // const payments = [
-  //   { id: 1, org: 'Acme Corp', amount: '₹19,996', date: '2024-12-01', status: 'Successful' },
-  //   { id: 2, org: 'TechStart', amount: '₹47,988', date: '2024-12-01', status: 'Successful' },
-  //   { id: 3, org: 'Dev Labs', amount: '₹4,999', date: '2024-11-30', status: 'Failed' }
-  // ];
-
-  // const stats = {
-  //   totalRevenue: '₹2,45,950',
-  //   activeSubscriptions: 85,
-  //   failedPayments: 3,
-  //   totalOrgs: 32
-  // };
-
-  // Add this function to handle new plan additions
-  // const handleAddPlan = (newPlan) => {
-  //   setPlans([...plans, { ...newPlan, activeSubscriptions: 0 }]);
-  //   setIsPlanModalOpen(false);
-  // };
-
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const handleAddPlan = (planData) => {
     console.log("New plan:", planData);
     setIsPlanModalOpen(false);
   };
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+
+  // Add this handler function
+  const handleEditPlan = (updatedPlan) => {
+    // Here you would typically make an API call to update the plan
+    console.log("Updated plan:", updatedPlan);
+    // Update the plans in your state/database
+    setIsEditModalOpen(false);
+  };
+
+  
 
   const menuItems = {
     heading: "ADMIN",
@@ -372,94 +354,109 @@ const Dashboard = () => {
           </div>
         );
 
-        case "plans":
-          return (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-white">
-                    Subscription Plans
-                  </h2>
-                  <p className="text-gray-400 mt-1">
-                    Manage your subscription plans and pricing
-                  </p>
-                </div>
-                <button
-                  onClick={() => setIsPlanModalOpen(true)}
-                  className="bg-white hover:bg-gray-100 text-black px-6 py-2.5 rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2"
-                >
-                  <Plus size={18} />
-                  Add New Plan
-                </button>
+      case "plans":
+        return (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-white">
+                  Subscription Plans
+                </h2>
+                <p className="text-gray-400 mt-1">
+                  Manage your subscription plans and pricing
+                </p>
               </div>
-        
-              {/* Plans Grid - Updated with smaller boxes */}
-              <div className="grid grid-cols-3 gap-4">
-                {plansData.plans.map((plan) => (
-                  <div
-                    key={plan.name}
-                    className="relative rounded-2xl bg-black border border-blue-500/20 p-6 group hover:border-blue-500/40 transition-all duration-300"
-                  >
-                    {/* Title */}
-                    <h3 className="text-gray-400 text-lg mb-4">{plan.name}</h3>
-        
-                    {/* Pricing */}
-                    <div className="space-y-1 mb-6">
-                      <div className="flex items-baseline">
-                        <span className="text-4xl font-bold text-white">
-                          {plan.price === 0
-                            ? "Free"
-                            : `₹${plan.price.toLocaleString()}`}
-                        </span>
-                        {plan.price !== 0 && (
-                          <span className="text-gray-400 ml-2">/year</span>
-                        )}
-                      </div>
-                      <p className="text-gray-500 text-sm">{plan.subcontent}</p>
-                    </div>
-        
-                    {/* Feature List */}
-                    <div className="space-y-3 mb-6">
-                      {plan.features.map((feature, index) => (
-                        <div key={index} className="flex items-start gap-2">
-                          <svg
-                            className="w-4 h-4 text-blue-500 mt-1 flex-shrink-0"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                          <span className="text-white text-sm">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-        
-                    {/* Action Button */}
-                    <div>
-                      <button className="w-full bg-white hover:bg-gray-100 text-black py-2.5 rounded-full text-sm font-medium transition-all duration-200">
-                        Edit Plan
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-        
-              {/* Add Plan Modal */}
-              <AddPlanModal
-                open={isPlanModalOpen}
-                onClose={() => setIsPlanModalOpen(false)}
-                onSubmit={handleAddPlan}
-              />
+              <button
+                onClick={() => setIsPlanModalOpen(true)}
+                className="bg-white hover:bg-gray-100 text-black px-6 py-2.5 rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2"
+              >
+                <Plus size={18} />
+                Add New Plan
+              </button>
             </div>
-          );
-      
-        case "organizations":
+
+            {/* Plans Grid - Updated with smaller boxes */}
+            <div className="grid grid-cols-3 gap-4">
+              {plansData.plans.map((plan) => (
+                <div
+                  key={plan.name}
+                  className="relative rounded-2xl bg-black border border-blue-500/20 p-6 group hover:border-blue-500/40 transition-all duration-300"
+                >
+                  {/* Title */}
+                  <h3 className="text-gray-400 text-lg mb-4">{plan.name}</h3>
+
+                  {/* Pricing */}
+                  <div className="space-y-1 mb-6">
+                    <div className="flex items-baseline">
+                      <span className="text-4xl font-bold text-white">
+                        {plan.price === 0
+                          ? "Free"
+                          : `₹${plan.price.toLocaleString()}`}
+                      </span>
+                      {plan.price !== 0 && (
+                        <span className="text-gray-400 ml-2">/year</span>
+                      )}
+                    </div>
+                    <p className="text-gray-500 text-sm">{plan.subcontent}</p>
+                  </div>
+
+                  {/* Feature List */}
+                  <div className="space-y-3 mb-6">
+                    {plan.features.map((feature, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <svg
+                          className="w-4 h-4 text-blue-500 mt-1 flex-shrink-0"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        <span className="text-white text-sm">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Action Button */}
+                  <div>
+                    <button
+                      onClick={() => {
+                        setSelectedPlan(plan);
+                        setIsEditModalOpen(true);
+                      }}
+                      className="w-full bg-white hover:bg-gray-100 text-black py-2.5 rounded-full text-sm font-medium transition-all duration-200"
+                    >
+                      Edit Plan
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <EditPlanModal
+              open={isEditModalOpen}
+              onClose={() => {
+                setIsEditModalOpen(false);
+                setSelectedPlan(null);
+              }}
+              onSubmit={handleEditPlan}
+              plan={selectedPlan}
+            />
+
+            {/* Add Plan Modal */}
+            <AddPlanModal
+              open={isPlanModalOpen}
+              onClose={() => setIsPlanModalOpen(false)}
+              onSubmit={handleAddPlan}
+            />
+          </div>
+        );
+
+      case "organizations":
         return (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -694,7 +691,6 @@ const Dashboard = () => {
               <img src="/avatar-svgrepo-com.svg" alt="" />
             </div>
           </div>
-
         </header>
 
         {/* Page content */}
